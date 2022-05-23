@@ -1,0 +1,9 @@
+#!/usr/bin/python3
+# Execute ultramarine-tweaks module
+
+import sys
+from umtweaks.app import Application
+
+if __name__ == "__main__":
+    app = Application()
+    app.run(sys.argv)
