@@ -1,3 +1,4 @@
+from cProfile import label
 import sys
 import gi
 
@@ -28,9 +29,47 @@ class MainContent(Gtk.Box):
         self.pack_start(self.stack, True, True, 0)
 
 
+class TweaksListBox(Gtk.ListBox):
+    def __init__(self):
+        Gtk.ListBox.__init__(self)
+        self.set_selection_mode(Gtk.SelectionMode.NONE)
+
+class TweaksBox(Gtk.Box):
+    def __init__(self, orientation=Gtk.Orientation.HORIZONTAL, spacing=0):
+        Gtk.Box.__init__(self, orientation=orientation, spacing=spacing)
+        self.set_margin_top(10)
+        self.set_margin_bottom(10)
+        self.set_margin_start(10)
+        self.set_margin_end(10)
+
+class TweaksListBoxRow(Gtk.ListBoxRow):
+    def __init__(self):
+        Gtk.ListBoxRow.__init__(self)
+        self.set_size_request(540, -1)
+        self.set_activatable(False)
+        self.set_selectable(False)
+        self.set_can_focus(False)
+
+        box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL)
+        box.set_margin_top(20)
+        box.set_margin_bottom(10)
+        box.set_margin_start(10)
+        box.set_margin_end(10)
+        box.set_spacing(10)
+
+class Page(Gtk.ScrolledWindow):
+    def __init__(self):
+        super().__init__()
+        self.set_name("UmTweaksPage")
+        self.listbox = TweaksListBox()
+        self.add(self.listbox)
+
+    def add_row(self,widget):
+        self.listbox.add(widget)
+
 
 class ListBoxRow(Gtk.ListBoxRow):
-    def __init__(self, title, icon_name: str=None, window = None, description: str=None):
+    def __init__(self, title, icon_name: str=None, window = None, description: str=None, page: Page=None):
         super().__init__()
         # Let's add a fancy box for padding
         hbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL)
@@ -56,8 +95,9 @@ class ListBoxRow(Gtk.ListBoxRow):
         self.connect("activate", self.select)
         self.connect("focus-in-event", self.select)
 
-        self.test_content = MainContent()
+        #self.test_content = MainContent()
         self.window = window
+        self.page = page
 
     def select(self, *args, **kwargs) -> None:
         #print(args)
@@ -71,9 +111,75 @@ class ListBoxRow(Gtk.ListBoxRow):
         box: Gtk.Box = leaflet.get_children()[-1]
         stack: Gtk.Stack = box.get_children()[0]
         # Destroy all children of stack
-        for child in stack.get_children():
+        """ for child in stack.get_children():
             stack.remove(child)
         # Add new child to stack
-        content = Gtk.Label(f"{self.title} Here")
-        stack.add(content)
+        content = self.page
+        stack.add(content) """
+
+        stack.set_visible_child_name(self.title)
+
         stack.show_all()
+        self.window.main_seperator.set_visible(False)
+        leaflet.navigate(Handy.NavigationDirection.FORWARD)
+        leaflet.navigate(Handy.NavigationDirection.FORWARD)
+        self.window.main_seperator.set_visible(True)
+
+
+class BooleanOption(TweaksListBoxRow):
+    def __init__(self, title: str, description: str=None, bool_value: bool=False, set_action: callable=None):
+        super().__init__()
+
+        box = TweaksBox()
+        labelbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
+
+        title_label = Gtk.Label(title)
+        box.add(title_label)
+        if description:
+            # Add description as tooltip
+            title_label.set_tooltip_text(description)
+
+
+
+        switch = Gtk.Switch()
+        switch.set_active(bool_value)
+        if set_action:
+            switch.connect("notify::active", set_action)
+        box.pack_end(switch, False, False, 0)
+
+
+        self.add(box)
+
+
+    def get_active(self) -> bool:
+        return self.check_button.get_active()
+
+
+class ComboOption(TweaksListBoxRow):
+    def __init__(self, title: str, description: str=None, options: list=None, selected_index: int=0, set_action: callable=None):
+        super().__init__()
+
+        box = TweaksBox()
+        title_label = Gtk.Label(title)
+        box.add(title_label)
+        if description:
+            # Add description as tooltip
+            title_label.set_tooltip_text(description)
+
+        combo = Gtk.ComboBox()
+        model = Gtk.ListStore(str)
+        for option in options:
+            model.append([option])
+        combo.set_model(model)
+        renderer_text = Gtk.CellRendererText()
+        combo.pack_start(renderer_text, True)
+        combo.add_attribute(renderer_text, "text", 0)
+        combo.set_active(selected_index)
+        if set_action:
+            combo.connect("changed", set_action)
+        box.pack_end(combo, False, False, 0)
+
+        self.add(box)
+
+    def get_active(self) -> int:
+        return self.combo_box.get_active()

@@ -25,7 +25,7 @@ class MainWindow(Gtk.ApplicationWindow):
         headerbar.set_show_close_button(True)
         self.set_titlebar(self.header_bar())
 
-        self.set_border_width(10)
+        #self.set_border_width(10)
 
         self.hsize_group = Gtk.SizeGroup(mode=Gtk.SizeGroupMode.HORIZONTAL)
 
@@ -33,23 +33,26 @@ class MainWindow(Gtk.ApplicationWindow):
         self.main_box.set_transition_type(Handy.LeafletTransitionType.SLIDE)
 
         left_box = self.sidebar()
-        right_box = main_content()
+        right_box = MainContent()
 
         self.main_box.add(left_box)
         self.main_box.child_set(left_box, name="sidebar")
-        separator = Gtk.Separator(orientation=Gtk.Orientation.VERTICAL)
-        self.main_box.add(separator)
+        self.main_seperator = Gtk.Separator(orientation=Gtk.Orientation.VERTICAL)
+        self.main_box.add(self.main_seperator)
         self.main_box.add(right_box)
 
         self.main_box.child_set(right_box, name="content")
         right_box.props.hexpand = True
+        self.main_box.connect("notify::folded", self.csd_update)
 
-        # HOW DO I ADD CONTENT TO SIDEBAR
+        modules.load_modules_to_pages(right_box.stack)
+
         # FIXME: META: Please send GTK devs. - Ultramarine Linux Team
 
         # TODO: Add content to sidebar
 
         # add content to sidebar
+        self.back_button = None
 
         self.add(self.main_box)
 
@@ -58,52 +61,66 @@ class MainWindow(Gtk.ApplicationWindow):
         """A header bar as a Leaflet"""
         header = Handy.Leaflet()
         header.set_transition_type(Handy.LeafletTransitionType.SLIDE)
-        #header.connect("notify::visible-child", self.csd_update)
-        header.connect("notify::folded", self.csd_update)
-        
+        header.connect("notify::visible-child", self.csd_update)
         # Check if the leaflet is folded
         #if header.
 
         left_header = Gtk.HeaderBar()
         left_header.props.show_close_button = False
 
-        right_header = Gtk.HeaderBar()
-        right_header.props.show_close_button = True
-        right_header.props.hexpand = True
+        self.header_right = Gtk.HeaderBar()
+        self.header_right.props.show_close_button = True
+        self.header_right.props.hexpand = True
 
-        left_header.set_title("Ultramarine Tweaks")
+        self.header_right.set_title("Ultramarine Tweaks")
 
         left_header.get_style_context().add_class("titlebar")
         left_header.get_style_context().add_class("tweak-titlebar-left")
-        right_header.get_style_context().add_class("titlebar")
-        right_header.get_style_context().add_class("tweak-titlebar-right")
+        self.header_right.get_style_context().add_class("titlebar")
+        self.header_right.get_style_context().add_class("tweak-titlebar-right")
 
 
-        self.back_button = Gtk.Button.new_from_icon_name("go-previous-symbolic", 1)
-        self.back_button.connect("clicked", self._on_back_button_clicked)
-        header.bind_property("folded", self.back_button, "visible")
-        right_header.pack_start(self.back_button)
+        #header.bind_property("folded", self.back_button, "visible")
 
-        seperator = Gtk.Separator(orientation=Gtk.Orientation.VERTICAL)
+        #self.back_button.hide()
 
-        header.add(left_header)
-        header.add(seperator)
-        header.add(right_header)
-        
-        
+        #self.seperator = Gtk.Separator(orientation=Gtk.Orientation.VERTICAL)
+
+        #header.add(left_header)
+        #header.add(self.seperator)
+        header.add(self.header_right)
 
         return header
 
     def _on_back_button_clicked(self, widget):
-        print("Back button clicked")
+        #print("Back button clicked")
+        # We call this twice because of the funny separator
+        self.main_seperator.set_visible(False)
         self.main_box.navigate(Handy.NavigationDirection.BACK)
+        self.main_box.navigate(Handy.NavigationDirection.BACK)
+        self.main_seperator.set_visible(True)
 
 
     def csd_update(self, *args, **kwargs):
-        print(kwargs)
+        #print(kwargs)
         a = self.get_titlebar()
 
-        print(a)
+
+
+        # Check if main box is folded
+        if self.main_box.props.folded:
+            if not self.back_button:
+                self.back_button = Gtk.Button.new_from_icon_name("go-previous-symbolic", 1)
+                self.back_button.connect("clicked", self._on_back_button_clicked)
+                self.header_right.pack_start(self.back_button)
+                self.back_button.hide()
+            #self.seperator.props.visible = False
+            self.back_button.props.visible = True
+        else:
+            #self.seperator.props.visible = True
+            if self.back_button:
+                self.back_button.props.visible = False
+        #print(a)
 
 
     def sidebar(self):
@@ -132,14 +149,16 @@ class MainWindow(Gtk.ApplicationWindow):
                           Gtk.PolicyType.AUTOMATIC)
 
         # Add content to listbox
-        page1 = ListBoxRow("Tweaks", "system-run-symbolic", self, "Testing")
+        """ page1 = ListBoxRow("Tweaks", "system-run-symbolic", self, "Testing")
         self.listbox.add(page1)
 
         page2 = ListBoxRow("Settings", "preferences-system", self)
         self.listbox.add(page2)
 
         page3 = ListBoxRow("Backups", "drive-multidisk-symbolic", self)
-        self.listbox.add(page3)
+        self.listbox.add(page3) """
+
+        modules.load_modules_to_listbox(self.listbox, self)
 
         scroll.add(self.listbox)
 
@@ -149,5 +168,3 @@ class MainWindow(Gtk.ApplicationWindow):
         self.hsize_group.add_widget(left_box)
 
         return left_box
-    
-    

@@ -9,9 +9,9 @@
             "type": "python",
             "request": "launch",
             "module": "umtweaks",
-            "env": {
+            /* "env": {
                 "GTK_DEBUG": "interactive"
-            },
+            }, */
             "justMyCode": true
         }
     ]
