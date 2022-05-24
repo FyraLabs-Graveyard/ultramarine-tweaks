@@ -116,6 +116,9 @@ def find_modules() -> list:
                     continue
                 # Holy shit i love this hack
                 modules.append(obj())
+
+    # sort the modules by name
+    modules.sort(key=lambda x: x.name)
     return modules
 
 

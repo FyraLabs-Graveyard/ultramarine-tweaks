@@ -5,7 +5,7 @@ from . import Module
 import gi
 from gi.repository import Gtk, Gio
 
-class Test1Module(Module):
+class AppearanceModule(Module):
     """Test Module"""
     def __init__(self):
         super().__init__()
