@@ -14,7 +14,7 @@ class MainWindow(Gtk.ApplicationWindow):
     def __init__(self, app):
         Gtk.ApplicationWindow.__init__(self, application=app, title="Ultramarine Tweaks")
 
-        self.set_default_size(800, 500)
+        self.set_default_size(1000, 700)
 
         headerbar = Gtk.HeaderBar()
 
