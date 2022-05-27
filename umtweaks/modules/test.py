@@ -1,4 +1,4 @@
-from umtweaks.widgets import BooleanOption, Page, TweaksListBoxRow, ComboOption
+from umtweaks.widgets import BooleanOption, Page, TweaksListBoxRow, ComboOption, TextOption
 from . import Module
 
 import gi
@@ -33,6 +33,14 @@ class Test1Module(Module):
             )
 
         self.page.add_row(combobox)
+
+        text = TextOption(
+            title="Text",
+            description="Text",
+            text="test",
+            )
+
+        self.page.add_row(text)
 
     def test_action(self, widget):
         # if widget is a ComboBox

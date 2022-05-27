@@ -141,11 +141,11 @@ class BooleanOption(TweaksListBoxRow):
 
 
 
-        switch = Gtk.Switch()
-        switch.set_active(bool_value)
+        self.switch = Gtk.Switch()
+        self.switch.set_active(bool_value)
         if set_action:
-            switch.connect("notify::active", set_action)
-        box.pack_end(switch, False, False, 0)
+            self.switch.connect("notify::active", set_action)
+        box.pack_end(self.switch, False, False, 0)
 
 
         self.add(box)
@@ -153,6 +153,9 @@ class BooleanOption(TweaksListBoxRow):
 
     def get_active(self) -> bool:
         return self.check_button.get_active()
+
+    def set_value(self, value: bool) -> None:
+        self.switch.set_active(value)
 
 
 class ComboOption(TweaksListBoxRow):
@@ -183,3 +186,30 @@ class ComboOption(TweaksListBoxRow):
 
     def get_active(self) -> int:
         return self.combo_box.get_active()
+
+class TextOption(TweaksListBoxRow):
+    def __init__(self, title: str, description: str=None, text: str=None, set_action: callable=None):
+        super().__init__()
+        self.text = text
+
+        box = TweaksBox()
+        title_label = Gtk.Label(title)
+        box.add(title_label)
+        if description:
+            # Add description as tooltip
+            title_label.set_tooltip_text(description)
+
+        self.entry = Gtk.Entry()
+        self.entry.set_text(self.text)
+        if set_action:
+            self.entry.connect("changed", set_action)
+        box.pack_end(self.entry, False, False, 0)
+
+        self.add(box)
+
+    # on self.text change
+    def get_text(self) -> str:
+        return self.text
+    def set_text(self, text: str) -> None:
+        self.text = text
+        self.entry.set_text(text)
