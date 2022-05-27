@@ -43,12 +43,12 @@ class AppearanceModule(Module):
 
     def set_gtk_theme(self, widget: Gtk.ComboBox):
         # Get the index of the selected item
-        print(widget.get_active())
+        #print(widget.get_active())
         index = widget.get_active()
 
         # Get the theme name
         theme = self.themes[index]
-        print(theme)
+        #print(theme)
 
         # Set the theme in Gsettings
         settings = Gio.Settings.new("org.gnome.desktop.interface")
@@ -59,11 +59,11 @@ class AppearanceModule(Module):
         """Get the current GTK theme"""
         settings = Gio.Settings.new("org.gnome.desktop.interface")
         theme = settings.get_string("gtk-theme")
-        print(theme)
+        #print(theme)
 
         # Get the index of the selected item
         index = self.themes.index(theme)
-        print(index)
+        #print(index)
         return index
 
     def get_gtk_themes(self) -> list:
@@ -85,5 +85,5 @@ class AppearanceModule(Module):
         # merge both lists, remove duplicates
         themes = list(set(system_themes + user_themes))
 
-        print(themes)
+        #print(themes)
         return themes
