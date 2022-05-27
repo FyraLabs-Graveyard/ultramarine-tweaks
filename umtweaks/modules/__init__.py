@@ -102,7 +102,7 @@ def find_modules() -> list:
             continue
         print(file)
         module = __import__(f"umtweaks.modules.{file[:-3]}", fromlist=["umtweaks.modules"])
-        for name, obj in module.__dict__.items():
+        for name, obj in list(module.__dict__.items()):
             #print(name, obj)]
             # if from __init__.py, skip
             if name == "__file__":
