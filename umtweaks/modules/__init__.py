@@ -100,7 +100,7 @@ def find_modules() -> list:
     for file in files:
         if file == "__init__.py":
             continue
-        print(file)
+        #print(file)
         module = __import__(f"umtweaks.modules.{file[:-3]}", fromlist=["umtweaks.modules"])
         for name, obj in list(module.__dict__.items()):
             #print(name, obj)]
@@ -109,7 +109,7 @@ def find_modules() -> list:
                 continue
 
             if isinstance(obj, type) and issubclass(obj, Module):
-                print(name)
+                #print(name)
                 # get file where object is from
                 a = obj.__module__
                 if a == "umtweaks.modules":
@@ -127,7 +127,7 @@ def load_modules_to_listbox(listbox: Gtk.ListBox, window: Gtk.Window):
     modules = find_modules()
     for module in modules:
         # print all of the modules properties
-        print(module.name)
+        #print(module.name)
         listbox.add(module.generate_row(window))
 
 

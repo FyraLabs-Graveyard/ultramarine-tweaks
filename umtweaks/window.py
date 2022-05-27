@@ -15,17 +15,10 @@ class MainWindow(Gtk.ApplicationWindow):
         Gtk.ApplicationWindow.__init__(self, application=app, title="Ultramarine Tweaks")
 
         self.set_default_size(1000, 700)
-
-        headerbar = Gtk.HeaderBar()
-
-        headerbar.set_show_close_button(True)
-        headerbar.props.title = "Ultramarine Tweaks"
-
-        headerbar.set_subtitle("Ultimate Linux Tweaks")
-        headerbar.set_show_close_button(True)
+        self.menu_button = Gtk.MenuButton()
+        self.set_icon_name("ultramarine")
         self.set_titlebar(self.header_bar())
 
-        #self.set_border_width(10)
 
         self.hsize_group = Gtk.SizeGroup(mode=Gtk.SizeGroupMode.HORIZONTAL)
 
@@ -79,6 +72,15 @@ class MainWindow(Gtk.ApplicationWindow):
         self.header_right.get_style_context().add_class("titlebar")
         self.header_right.get_style_context().add_class("tweak-titlebar-right")
 
+
+        appmenu = Gio.Menu()
+        appmenu.append("About", "app.about")
+
+        self.menu_button.set_menu_model(appmenu)
+        icon = Gtk.Image.new_from_icon_name("open-menu-symbolic", 1)
+        self.menu_button.set_image(icon)
+
+        self.header_right.pack_start(self.menu_button)
 
         #header.bind_property("folded", self.back_button, "visible")
 

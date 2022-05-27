@@ -157,7 +157,7 @@ class ReposModule(Module):
             self.treeview_model.append([repo.id, repo.name, repo.baseurl, repo.enabled])
 
         # fix size for treeview row
-        self.treeview.set_fixed_height_mode(True)
+        #self.treeview.set_fixed_height_mode(True)
         self.treeview.set_size_request(-1, 200)
 
         self.page.add_row(self.treeview)
