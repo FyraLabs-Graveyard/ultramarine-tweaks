@@ -9,16 +9,6 @@ gi.require_version("Gtk", "3.0")
 #gi.require_version("GtkSource", "3.0")
 from gi.repository import Gtk, Gio
 
-try:
-    # WTF I hate DBus
-    bus = dbus.SystemBus(mainloop=DBusGMainLoop())
-    snapper = dbus.Interface(bus.get_object('org.opensuse.Snapper',
-                                        '/org/opensuse/Snapper'),
-                         dbus_interface='org.opensuse.Snapper')
-except dbus.DBusException:
-    snapper = None
-    print("Unable to connect to snapper")
-
 class SnapperSnapshot(object):
     def __init__(self, id, date, user, description):
         # DBus types to python types
@@ -57,6 +47,21 @@ class SnapperConfig(object):
         for snapshot in snapshots_dbus:
             snapshots.append(SnapperSnapshot(id=snapshot[0], date=snapshot[3], user=snapshot[4], description=snapshot[5]))
         return snapshots
+
+
+try:
+    # WTF I hate DBus
+    bus = dbus.SystemBus(mainloop=DBusGMainLoop())
+    snapper = dbus.Interface(bus.get_object('org.opensuse.Snapper',
+                                        '/org/opensuse/Snapper'),
+                         dbus_interface='org.opensuse.Snapper')
+    configs = SnapperConfig.list_configs()
+    config_names = [str(config.name) for config in configs]
+    selected_config: SnapperConfig = SnapperConfig.get_config(config_names[0])
+except:
+    snapper = None
+    print("Unable to connect to snapper")
+
 
 
 
