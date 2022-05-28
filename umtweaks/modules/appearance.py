@@ -37,6 +37,19 @@ class AppearanceModule(Module):
 
         self.page.add_row(gtk_theme)
 
+        self.icon_themes = self.get_icon_themes()
+
+        icon_theme = ComboOption(
+            title="Icon Theme",
+            description="Select a icon theme",
+            options=self.icon_themes,
+            selected_index=self.get_icon_theme_index(),
+            set_action=self.set_icon_theme
+        )
+
+        self.page.add_row(icon_theme)
+
+
         color_scheme_options = [
             "Default",
             "Prefer Dark",
@@ -129,3 +142,48 @@ class AppearanceModule(Module):
         # Set the scheme in Gsettings
         settings = Gio.Settings.new("org.gnome.desktop.interface")
         settings.set_string("color-scheme", scheme)
+
+    def get_icon_themes(self) -> list:
+        """Get all icon themes"""
+        # list folders in /usr/share/icons
+        system_themes = []
+        for folder in os.listdir("/usr/share/icons"):
+            if os.path.isdir("/usr/share/icons/" + folder):
+                system_themes.append(folder)
+
+        user_themes = []
+        # if ~/.icons exists
+        if os.path.isdir(os.path.expanduser("~/.icons")):
+            for folder in os.listdir(os.path.expanduser("~/.icons")):
+                if os.path.isdir(os.path.expanduser("~/.icons/") + folder):
+                    user_themes.append(folder)
+
+        # merge both lists, remove duplicates
+        themes = list(set(system_themes + user_themes))
+
+        #print(themes)
+        return themes
+
+    def get_icon_theme_index(self) -> int:
+        """Get the current icon theme"""
+        settings = Gio.Settings.new("org.gnome.desktop.interface")
+        theme = settings.get_string("icon-theme")
+        #print(theme)
+
+        # Get the index of the selected item
+        index = self.icon_themes.index(theme)
+        #print(index)
+        return index
+
+    def set_icon_theme(self, widget: Gtk.ComboBox):
+        # Get the index of the selected item
+        #print(widget.get_active())
+        index = widget.get_active()
+
+        # Get the theme name
+        theme = self.icon_themes[index]
+        #print(theme)
+
+        # Set the theme in Gsettings
+        settings = Gio.Settings.new("org.gnome.desktop.interface")
+        settings.set_string("icon-theme", theme)
