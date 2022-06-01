@@ -13,7 +13,7 @@ gnome = import('gnome')
 
 
 subdir('data')
-subdir('src')
+subdir('umtweaks')
 subdir('po')
 
 gnome.post_install(

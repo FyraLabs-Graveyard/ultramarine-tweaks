@@ -1,4 +1,4 @@
-from ..widgets import ListBoxRow, Page
+from umtweaks.widgets import ListBoxRow, Page
 
 from gi.repository import Gio, Gtk
 

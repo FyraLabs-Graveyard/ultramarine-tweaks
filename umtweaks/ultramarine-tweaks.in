@@ -1,0 +1,30 @@
+#!@PYTHON@
+# Execute ultramarine-tweaks module
+
+import sys
+import os
+import sys
+import signal
+import locale
+import gettext
+
+VERSION = '@VERSION@'
+pkgdatadir = '@pkgdatadir@'
+localedir = '@localedir@'
+
+sys.path.insert(1, pkgdatadir)
+signal.signal(signal.SIGINT, signal.SIG_DFL)
+locale.bindtextdomain('umtweaks', localedir)
+locale.textdomain('umtweaks')
+gettext.install('umtweaks', localedir)
+
+if __name__ == '__main__':
+    import gi
+
+    from gi.repository import Gio
+    resource = Gio.Resource.load(os.path.join(pkgdatadir, 'ultramarine-tweaks.gresource'))
+    resource._register()
+
+    from umtweaks.app import Application
+    app = Application()
+    app.run(sys.argv)
