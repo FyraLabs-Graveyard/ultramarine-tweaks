@@ -1,8 +1,8 @@
 import os
-from umtweaks.widgets import BooleanOption, Page, TweaksListBoxRow, ComboOption
+from typing import Any
+from umtweaks.widgets import BooleanOption, Page, ComboOption
 from . import Module
 
-import gi
 from gi.repository import Gtk, Gio
 
 class AppearanceModule(Module):
@@ -20,7 +20,6 @@ class AppearanceModule(Module):
                 "callback": self.test_action
             }
         ]
-        self.page = Page()
         boxrow = BooleanOption("Test", description="Test Description", bool_value=True, set_action=self.test_action)
 
         self.page.add_row(boxrow)
@@ -66,7 +65,7 @@ class AppearanceModule(Module):
 
         self.page.add_row(color_scheme)
 
-    def test_action(self, widget):
+    def test_action(self, widget: Gtk.Widget, *args: Any):
         # if widget is a ComboBox
         print("Test action")
 
@@ -95,16 +94,16 @@ class AppearanceModule(Module):
         #print(index)
         return index
 
-    def get_gtk_themes(self) -> list:
+    def get_gtk_themes(self) -> list[str]:
         """Get all themes"""
         # list folders in /usr/share/themes
 
-        system_themes = []
+        system_themes: list[str] = []
         for folder in os.listdir("/usr/share/themes"):
             if os.path.isdir("/usr/share/themes/" + folder):
                 system_themes.append(folder)
 
-        user_themes = []
+        user_themes: list[str] = []
         # if ~/.themes exists
         if os.path.isdir(os.path.expanduser("~/.themes")):
             for folder in os.listdir(os.path.expanduser("~/.themes")):
@@ -129,6 +128,8 @@ class AppearanceModule(Module):
                 return 1
             case "prefer-light":
                 return 2
+            case _:
+                raise Exception()
 
     def set_color_scheme(self, widget: Gtk.ComboBox):
         # Get the index of the selected item

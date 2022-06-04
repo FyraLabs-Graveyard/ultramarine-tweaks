@@ -1,11 +1,8 @@
-import json
 import os
-from re import S
-from umtweaks.widgets import BooleanOption, Page, TweaksListBoxRow, ComboOption, TextOption
+from umtweaks.widgets import BooleanOption, TextOption
 from . import Module
 
-import gi
-from gi.repository import Gtk, Gio
+from gi.repository import Gtk
 
 # TODO: Add a polkit rule for this module, else it will not work thanks to permissions
 
@@ -96,7 +93,6 @@ class ReposModule(Module):
         self.name = "Repositories"
         self.description = "This is a test module"
         self.icon = "system-software-install-symbolic"
-        self.page = Page()
         self.treeview = Gtk.TreeView()
 
         # Create the model

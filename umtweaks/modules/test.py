@@ -1,7 +1,6 @@
-from umtweaks.widgets import BooleanOption, Page, TweaksListBoxRow, ComboOption, TextOption
+from umtweaks.widgets import BooleanOption, Page, ComboOption, TextOption
 from . import Module
 
-import gi
 from gi.repository import Gtk
 
 class Test1Module(Module):
@@ -42,8 +41,9 @@ class Test1Module(Module):
 
         self.page.add_row(text)
 
-    def test_action(self, widget):
+    def test_action(self, widget: Gtk.Switch, boolopt: bool):
         # if widget is a ComboBox
+        print(widget)
         print("Test action")
 
     def combobox_changed(self, widget: Gtk.ComboBox):

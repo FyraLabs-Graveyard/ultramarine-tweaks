@@ -1,26 +1,28 @@
-from cProfile import label
-import sys
+from typing import Any, Callable
 import gi
 
 gi.require_version("Gtk", "3.0")
 gi.require_version("Handy", "1")
 
-from gi.repository import Gtk, Gio, GLib, Handy
-#rom .window import MainWindow
+from gi.repository import Gtk, Handy, GObject
+
+# rom .window import MainWindow
+
 
 def main_content():
-        right_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
-        right_box.set_size_request(540, -1)
+    right_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
+    right_box.set_size_request(540, -1)
 
-        stack = Gtk.Stack()
-        stack.get_style_context().add_class("main-container")
+    stack = Gtk.Stack()
+    stack.get_style_context().add_class("main-container")
 
-        right_box.pack_start(stack, True, True, 0)
+    right_box.pack_start(stack, True, True, 0)
 
-        return right_box
+    return right_box
+
 
 class MainContent(Gtk.Box):
-    def __init__(self, orientation=Gtk.Orientation.VERTICAL, spacing=0):
+    def __init__(self, orientation: Gtk.Orientation = Gtk.Orientation.VERTICAL, spacing: int = 0):
         Gtk.Box.__init__(self, orientation=orientation, spacing=spacing)
         self.set_size_request(540, -1)
         self.stack = Gtk.Stack()
@@ -34,13 +36,15 @@ class TweaksListBox(Gtk.ListBox):
         Gtk.ListBox.__init__(self)
         self.set_selection_mode(Gtk.SelectionMode.NONE)
 
+
 class TweaksBox(Gtk.Box):
-    def __init__(self, orientation=Gtk.Orientation.HORIZONTAL, spacing=0):
+    def __init__(self, orientation: Gtk.Orientation = Gtk.Orientation.HORIZONTAL, spacing: int = 0):
         Gtk.Box.__init__(self, orientation=orientation, spacing=spacing)
         self.set_margin_top(10)
         self.set_margin_bottom(10)
         self.set_margin_start(10)
         self.set_margin_end(10)
+
 
 class TweaksListBoxRow(Gtk.ListBoxRow):
     def __init__(self):
@@ -57,6 +61,7 @@ class TweaksListBoxRow(Gtk.ListBoxRow):
         box.set_margin_end(10)
         box.set_spacing(10)
 
+
 class Page(Gtk.ScrolledWindow):
     def __init__(self):
         super().__init__()
@@ -64,12 +69,19 @@ class Page(Gtk.ScrolledWindow):
         self.listbox = TweaksListBox()
         self.add(self.listbox)
 
-    def add_row(self,widget):
+    def add_row(self, widget: Gtk.Widget):
         self.listbox.add(widget)
 
 
 class ListBoxRow(Gtk.ListBoxRow):
-    def __init__(self, title, icon_name: str=None, window = None, description: str=None, page: Page=None):
+    def __init__(
+        self,
+        title: str,
+        description: str,
+        icon_name: str,
+        window: Gtk.Window,
+        page: Page,
+    ):
         super().__init__()
         # Let's add a fancy box for padding
         hbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL)
@@ -95,16 +107,16 @@ class ListBoxRow(Gtk.ListBoxRow):
         self.connect("activate", self.select)
         self.connect("focus-in-event", self.select)
 
-        #self.test_content = MainContent()
+        # self.test_content = MainContent()
         self.window = window
         self.page = page
 
-    def select(self, *args, **kwargs) -> None:
-        #print(args)
-        #print(kwargs)
-        #print("select:", self.title)
-        #self.window.main_box.navigate(Handy.NavigationDirection.FORWARD)
-        #self.window.main_box.set_visible_child_name(self.title)
+    def select(self, *args) -> None:
+        # print(args)
+        # print(kwargs)
+        # print("select:", self.title)
+        # self.window.main_box.navigate(Handy.NavigationDirection.FORWARD)
+        # self.window.main_box.set_visible_child_name(self.title)
         # Get child of self.window.main_box.get_visible_child()
         # which should be a Gtk.Stack
         leaflet: Gtk.Container = self.window.main_box
@@ -127,11 +139,18 @@ class ListBoxRow(Gtk.ListBoxRow):
 
 
 class BooleanOption(TweaksListBoxRow):
-    def __init__(self, title: str, description: str=None, bool_value: bool=False, set_action: callable=None):
+    def __init__(
+        self,
+        title: str,
+        description: str = '',
+        bool_value: bool = False,
+        set_action: Callable[[Gtk.Switch, GObject.GType], Any]|None = None,
+    ):
         super().__init__()
-
-        box = TweaksBox()
-        labelbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
+        self.title = title
+        self.description = description
+        box = TweaksBox() # self.get_parent()
+        # labelbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
 
         title_label = Gtk.Label(title)
         box.add(title_label)
@@ -139,17 +158,13 @@ class BooleanOption(TweaksListBoxRow):
             # Add description as tooltip
             title_label.set_tooltip_text(description)
 
-
-
         self.switch = Gtk.Switch()
         self.switch.set_active(bool_value)
         if set_action:
             self.switch.connect("notify::active", set_action)
         box.pack_end(self.switch, False, False, 0)
 
-
         self.add(box)
-
 
     def get_active(self) -> bool:
         return self.check_button.get_active()
@@ -159,7 +174,14 @@ class BooleanOption(TweaksListBoxRow):
 
 
 class ComboOption(TweaksListBoxRow):
-    def __init__(self, title: str, description: str=None, options: list=None, selected_index: int=0, set_action: callable=None):
+    def __init__(
+        self,
+        title: str,
+        description: str = '',
+        options: list[str] = [],
+        selected_index: int = 0,
+        set_action: Callable[[Gtk.ComboBox, GObject.GType], Any]|None = None,
+    ):
         super().__init__()
 
         box = TweaksBox()
@@ -187,8 +209,15 @@ class ComboOption(TweaksListBoxRow):
     def get_active(self) -> int:
         return self.combo_box.get_active()
 
+
 class TextOption(TweaksListBoxRow):
-    def __init__(self, title: str, description: str=None, text: str=None, set_action: callable=None):
+    def __init__(
+        self,
+        title: str,
+        description: str = '',
+        text: str = '',
+        set_action: Callable[[Gtk.Entry, GObject.GType], Any]|None = None,
+    ):
         super().__init__()
         self.text = text
 
@@ -210,6 +239,7 @@ class TextOption(TweaksListBoxRow):
     # on self.text change
     def get_text(self) -> str:
         return self.text
+
     def set_text(self, text: str) -> None:
         self.text = text
         self.entry.set_text(text)

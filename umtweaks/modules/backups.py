@@ -1,13 +1,11 @@
 from datetime import datetime
 import pwd
-from umtweaks.widgets import BooleanOption, Page, TweaksListBoxRow, ComboOption
+from umtweaks.widgets import Page, ComboOption
 from . import Module
 import dbus
 from dbus.mainloop.glib import DBusGMainLoop
-import gi
-gi.require_version("Gtk", "3.0")
 #gi.require_version("GtkSource", "3.0")
-from gi.repository import Gtk, Gio
+from gi.repository import Gtk
 
 class SnapperSnapshot(object):
     def __init__(self, id, date, user, description):
@@ -60,7 +58,7 @@ try:
     selected_config: SnapperConfig = SnapperConfig.get_config(config_names[0])
 except:
     snapper = None
-    print("Unable to connect to snapper")
+    print("backups: Unable to connect to snapper")
 
 
 
@@ -81,11 +79,8 @@ class SnapperBackupsModule(Module):
         self.description = "This is a test module"
         self.icon = "drive-multidisk-symbolic"
 
-        
-        # if snapper is not None
-        if snapper is not None:
+        if snapper:
         #if snapper_enabled:
-            self.page = Page()
             self.configs = SnapperConfig.list_configs()
             config_names = [str(config.name) for config in self.configs]
             #print(f"Configs: {config_names}")
@@ -152,7 +147,6 @@ class SnapperBackupsModule(Module):
             self.page.add_row(self.treeview)
 
         else:
-            self.page = Page()
             no_snapper_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
             icon = Gtk.Image.new_from_icon_name("dialog-error-symbolic", size=Gtk.IconSize.DIALOG)
             no_snapper_box.add(icon)

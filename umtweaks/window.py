@@ -1,17 +1,16 @@
-import sys
 import gi
 
 gi.require_version("Gtk", "3.0")
 gi.require_version("Handy", "1")
 
-from gi.repository import Gtk, Gio, GLib, Handy
+from gi.repository import Gtk, Gio, Handy
 
-from .widgets import ListBoxRow, MainContent, main_content
+from .widgets import MainContent
 
 import umtweaks.modules as modules
 
 class MainWindow(Gtk.ApplicationWindow):
-    def __init__(self, app):
+    def __init__(self, app: Gtk.Application):
         Gtk.ApplicationWindow.__init__(self, application=app, title="Ultramarine Tweaks")
 
         self.set_default_size(1000, 700)
@@ -22,7 +21,7 @@ class MainWindow(Gtk.ApplicationWindow):
 
         self.hsize_group = Gtk.SizeGroup(mode=Gtk.SizeGroupMode.HORIZONTAL)
 
-        self.main_box = Handy.Leaflet()
+        self.main_box: Gtk.Container = Handy.Leaflet()
         self.main_box.set_transition_type(Handy.LeafletTransitionType.SLIDE)
 
         left_box = self.sidebar()
@@ -50,9 +49,9 @@ class MainWindow(Gtk.ApplicationWindow):
         self.add(self.main_box)
 
 
-    def header_bar(self):
+    def header_bar(self) -> Gtk.Container:
         """A header bar as a Leaflet"""
-        header = Handy.Leaflet()
+        header: Gtk.Container = Handy.Leaflet()
         header.set_transition_type(Handy.LeafletTransitionType.SLIDE)
         header.connect("notify::visible-child", self.csd_update)
         # Check if the leaflet is folded
@@ -105,7 +104,7 @@ class MainWindow(Gtk.ApplicationWindow):
 
     def csd_update(self, *args, **kwargs):
         #print(kwargs)
-        a = self.get_titlebar()
+        # a = self.get_titlebar()
 
 
 

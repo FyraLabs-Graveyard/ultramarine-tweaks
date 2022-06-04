@@ -9,6 +9,7 @@ umtweaks_sources = [
   'dnf_repos.py',
   'kernel.py',
   'power.py',
+  'services.py',
 ]
 
 install_data(umtweaks_sources, install_dir: moduledir)

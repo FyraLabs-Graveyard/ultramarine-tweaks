@@ -1,14 +1,14 @@
 from . import Module
-from umtweaks.widgets import BooleanOption, Page, TweaksListBoxRow, ComboOption, TextOption
+from umtweaks.widgets import ComboOption, TextOption
 
 
 class PowerManagmentModule(Module):
     """Power Managment Module"""
     def __init__(self):
         super().__init__()
-        self._name = "Power Managment"
-        self._description = "Option for the power management"
-        self._icon = "battery-full-symbolic"
+        self.name = "Power Managment"
+        self.description = "Option for the power management"
+        self.icon = "battery-full-symbolic"
 
         combobox = ComboOption(
             title="Power Profile",
