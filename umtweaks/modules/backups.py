@@ -1,6 +1,6 @@
 from datetime import datetime
 import pwd
-from umtweaks.widgets import Page, ComboOption
+from umtweaks.widgets import ComboOption
 from . import Module
 import dbus
 from dbus.mainloop.glib import DBusGMainLoop
@@ -161,7 +161,7 @@ class SnapperBackupsModule(Module):
 
 
 
-    def test_action(self, *args, **kwargs):
+    def test_action(self, *_):
         print("Test action")
-    def set_up_snapper(self, *args, **kwargs):
+    def set_up_snapper(self, *_):
         print("Set up snapper")

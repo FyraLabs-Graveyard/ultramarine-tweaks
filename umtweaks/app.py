@@ -37,7 +37,8 @@ class Application(Gtk.Application):
         about.set_license_type(Gtk.License.MIT_X11)
         about.set_website("https://ultramarine-linux.org")
         about.set_authors([
-            "Cappy Ishihara <cappy@cappuchino.xyz>"
+            "Cappy Ishihara <cappy@cappuchino.xyz>",
+            "windowsboy111 <wboy111@outlook.com>",
         ])
         about.connect("response", lambda d, r: about.destroy())
         about.show()

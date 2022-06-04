@@ -1,6 +1,6 @@
 import os
 from typing import Any
-from umtweaks.widgets import BooleanOption, Page, ComboOption
+from umtweaks.widgets import BooleanOption, ComboOption
 from . import Module
 
 from gi.repository import Gtk, Gio

@@ -41,7 +41,7 @@ class Test1Module(Module):
 
         self.page.add_row(text)
 
-    def test_action(self, widget: Gtk.Switch, boolopt: bool):
+    def test_action(self, widget: Gtk.Switch, _: bool):
         # if widget is a ComboBox
         print(widget)
         print("Test action")

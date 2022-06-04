@@ -1,4 +1,4 @@
-from typing import Any, Callable
+from typing import Any, Callable, TypeVar
 import gi
 
 gi.require_version("Gtk", "3.0")
@@ -6,7 +6,9 @@ gi.require_version("Handy", "1")
 
 from gi.repository import Gtk, Handy, GObject
 
-# rom .window import MainWindow
+# from .window import MainWindow
+WidgetT = TypeVar("WidgetT", bound=Gtk.Widget)
+SetActionT = Callable[[WidgetT, GObject.GType], Any]|None
 
 
 def main_content():
@@ -111,7 +113,7 @@ class ListBoxRow(Gtk.ListBoxRow):
         self.window = window
         self.page = page
 
-    def select(self, *args) -> None:
+    def select(self, widget: Gtk.Widget, gParam: GObject.GType) -> None:
         # print(args)
         # print(kwargs)
         # print("select:", self.title)
@@ -144,7 +146,7 @@ class BooleanOption(TweaksListBoxRow):
         title: str,
         description: str = '',
         bool_value: bool = False,
-        set_action: Callable[[Gtk.Switch, GObject.GType], Any]|None = None,
+        set_action: SetActionT[Gtk.Switch] = None,
     ):
         super().__init__()
         self.title = title
@@ -180,7 +182,7 @@ class ComboOption(TweaksListBoxRow):
         description: str = '',
         options: list[str] = [],
         selected_index: int = 0,
-        set_action: Callable[[Gtk.ComboBox, GObject.GType], Any]|None = None,
+        set_action: SetActionT[Gtk.ComboBox] = None,
     ):
         super().__init__()
 
@@ -216,7 +218,7 @@ class TextOption(TweaksListBoxRow):
         title: str,
         description: str = '',
         text: str = '',
-        set_action: Callable[[Gtk.Entry, GObject.GType], Any]|None = None,
+        set_action: SetActionT[Gtk.Entry] = None,
     ):
         super().__init__()
         self.text = text

@@ -8,8 +8,6 @@ from gi.repository import Gtk, GObject
 class ServiceModule(Module):
     """Manage systemd modules"""
 
-    allowed_services = ["chronyd", "chrony-wait", "bluetooth"]
-
     def __init__(self):
         super().__init__()
         self.name = "Service Management"
@@ -33,28 +31,18 @@ class ServiceModule(Module):
         return self.is_enabled(service) == "disabled"
 
     def toggle(self, widget: Gtk.Switch, _: GObject.GType):
-        tweakbox: Gtk.Widget | None = widget.get_parent()
-        if not tweakbox:
-            raise Exception()
-        boolopt: Gtk.Widget | None = tweakbox.get_parent()
-        if not boolopt:
-            raise Exception()
+        tweakbox = widget.get_parent()
+        assert tweakbox
+        boolopt = tweakbox.get_parent()
         assert isinstance(boolopt, BooleanOption)
         service = boolopt.title.split()[0]
         if (state := self.is_enabled(service)) not in ['enabled', 'disabled']:
             return widget.set_sensitive(False)
-        if state == 'enabled' and widget.get_active():
-            return
-        if state == 'disabled' and not widget.get_active():
-            return
-        if widget.get_active() == self.is_active(service):
-            return
-        if widget.get_active():
-            succ = self.enable(service)
-        else:
-            succ = self.disable(service)
-        if not succ:
-            widget.set_active(self.is_enabled(service) == "enabled")
+        if state == 'enabled'  and     widget.get_active(): return
+        if state == 'disabled' and not widget.get_active(): return
+        if self.is_active(service) ==  widget.get_active():  return
+        succ = self.enable(service) if widget.get_active() else self.disable(service)
+        if not succ: widget.set_active(self.is_enabled(service) == "enabled")
 
     def is_enabled(self, service: str):
         cmd = f"systemctl is-enabled {service}"
@@ -78,16 +66,6 @@ class ServiceModule(Module):
         if out not in ["inactive", "active", "failed"]:
             raise Exception(f"Ran '{cmd}' and got:\n" + out)
         return out == "active"
-
-    def old_list(self):
-        for ser in self.allowed_services:
-            enabled = self.is_enabled(ser)
-            opt = BooleanOption(ser, "", enabled == "enabled", self.toggle)
-            if self.is_enabled(ser) == "static":
-                # grey out the opt
-                opt.set_sensitive(False)
-                opt.set_value(self.is_active(ser))
-            self.page.add_row(opt)
 
     def list(self):
         print("services: Gathering info from systemd")
