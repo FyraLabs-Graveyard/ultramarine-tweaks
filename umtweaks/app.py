@@ -38,6 +38,7 @@ class Application(Gtk.Application):
             [
                 "Cappy Ishihara <cappy@cappuchino.xyz>",
                 "windowsboy111 <wboy111@outlook.com>",
+                "matteodev <info@matteodev.xyz>",
             ]
         )
         about.connect("response", lambda d, r: about.destroy())
