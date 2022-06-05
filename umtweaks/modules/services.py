@@ -1,4 +1,5 @@
 import subprocess as sp
+from threading import Thread
 
 from . import Module
 from umtweaks.widgets import BooleanOption, TextOption, TweaksBox
@@ -15,13 +16,14 @@ class ServiceModule(Module):
         self.description = "Disable services from weak dependencies"
         self.icon = "system-run-symbolic"
 
-        # we have to init self.page here, or else it will results in
-        # startup:
-        # Gtk-CRITICAL gtk_container_add_with_properties: assertion '_gtk_widget_get_parent (widget) == NULL' failed
-        # clicking on the corresponding item on the page on the left
-        # Gtk-WARNING Child name 'Module Name' not found in GtkStack
-        self.page.add_row(TextOption("Search", set_action=self.search))
-        self.list()
+        search = TextOption("Search", set_action=self.search)
+        box = search.get_children()[0]
+        assert isinstance(box, TweaksBox)
+        searchLbl = box.get_children()[0]
+        assert isinstance(searchLbl, Gtk.Label)
+        self.searchLbl = searchLbl
+        self.page.add_row(search)
+        Thread(target=self.list).start()
 
     def enable(self, service: str) -> bool:
         sp.run(f"systemctl enable {service}".split())
@@ -39,14 +41,10 @@ class ServiceModule(Module):
         service = boolopt.title.split()[0]
         if (state := self.is_enabled(service)) not in ["enabled", "disabled"]:
             return widget.set_sensitive(False)
-        if state == "enabled" and widget.get_active():
-            return
-        if state == "disabled" and not widget.get_active():
-            return
-        if self.is_active(service) == widget.get_active():
-            return
-        succ = self.enable(service) if widget.get_active() else self.disable(service)
-        if not succ:
+        if state == "enabled"  and     widget.get_active(): return
+        if state == "disabled" and not widget.get_active(): return
+        if self.is_active(service)  == widget.get_active(): return
+        if not self.enable(service) if widget.get_active() else self.disable(service):
             widget.set_active(self.is_enabled(service) == "enabled")
 
     def is_enabled(self, service: str):
@@ -94,15 +92,9 @@ class ServiceModule(Module):
                 opt.set_sensitive(False)
                 opt.set_value(self.is_active(ser))
                 opt.switch.set_tooltip_text(f"This service is {enabled}.")
-            self.page.add_row(opt)
             self.rows.append(opt)
-        textopt = self.page.listbox.get_children()[0]
-        assert isinstance(textopt, TextOption)
-        box = textopt.get_children()[0]
-        assert isinstance(box, TweaksBox)
-        title_label = box.get_children()[0]
-        assert isinstance(title_label, Gtk.Label)
-        title_label.set_text(f"Search ({len(self.rows)})")
+            self.page.add_row(opt)
+            self.searchLbl.set_text(f"Search ({len(self.rows)})")
         print("\nservices: Done!")
 
     def list_blame(self):
@@ -118,12 +110,8 @@ class ServiceModule(Module):
 
     def search(self, widget: Gtk.Entry):
         query = widget.get_text()
-        box = widget.get_parent()
-        assert isinstance(box, TweaksBox)
-        title_label = box.get_children()[0]
-        assert isinstance(title_label, Gtk.Label)
         if not query:
-            title_label.set_text(f"Search ({len(self.rows)})")
+            self.searchLbl.set_text(f"Search ({len(self.rows)})")
             return [opt.show() for opt in self.rows]
         i = 0
         for opt in self.rows:
@@ -132,4 +120,4 @@ class ServiceModule(Module):
                 opt.show()
             else:
                 opt.hide()
-        title_label.set_text(f"Search ({i})")
+        self.searchLbl.set_text(f"Search ({i})")
