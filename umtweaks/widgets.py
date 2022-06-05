@@ -8,8 +8,8 @@ from gi.repository import Gtk, Handy, GObject
 
 # from .window import MainWindow
 WidgetT = TypeVar("WidgetT", bound=Gtk.Widget)
-SetActionT = Callable[[WidgetT, Optional[GObject.GType]], Any]|None
-SetActionT2 = Callable[[WidgetT], Any]|None
+SetActionT = Callable[[WidgetT, Optional[GObject.GType]], Any] | None
+SetActionT2 = Callable[[WidgetT], Any] | None
 
 
 def main_content():
@@ -25,7 +25,9 @@ def main_content():
 
 
 class MainContent(Gtk.Box):
-    def __init__(self, orientation: Gtk.Orientation = Gtk.Orientation.VERTICAL, spacing: int = 0):
+    def __init__(
+        self, orientation: Gtk.Orientation = Gtk.Orientation.VERTICAL, spacing: int = 0
+    ):
         Gtk.Box.__init__(self, orientation=orientation, spacing=spacing)
         self.set_size_request(540, -1)
         self.stack = Gtk.Stack()
@@ -41,7 +43,11 @@ class TweaksListBox(Gtk.ListBox):
 
 
 class TweaksBox(Gtk.Box):
-    def __init__(self, orientation: Gtk.Orientation = Gtk.Orientation.HORIZONTAL, spacing: int = 0):
+    def __init__(
+        self,
+        orientation: Gtk.Orientation = Gtk.Orientation.HORIZONTAL,
+        spacing: int = 0,
+    ):
         Gtk.Box.__init__(self, orientation=orientation, spacing=spacing)
         self.set_margin_top(10)
         self.set_margin_bottom(10)
@@ -145,14 +151,14 @@ class BooleanOption(TweaksListBoxRow):
     def __init__(
         self,
         title: str,
-        description: str = '',
+        description: str = "",
         bool_value: bool = False,
         set_action: SetActionT[Gtk.Switch] = None,
     ):
         super().__init__()
         self.title = title
         self.description = description
-        box = TweaksBox() # self.get_parent()
+        box = TweaksBox()  # self.get_parent()
         # labelbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
 
         title_label = Gtk.Label(title)
@@ -180,7 +186,7 @@ class ComboOption(TweaksListBoxRow):
     def __init__(
         self,
         title: str,
-        description: str = '',
+        description: str = "",
         options: list[str] = [],
         selected_index: int = 0,
         set_action: SetActionT2[Gtk.ComboBox] = None,
@@ -217,8 +223,8 @@ class TextOption(TweaksListBoxRow):
     def __init__(
         self,
         title: str,
-        description: str = '',
-        text: str = '',
+        description: str = "",
+        text: str = "",
         set_action: SetActionT2[Gtk.Entry] = None,
     ):
         super().__init__()

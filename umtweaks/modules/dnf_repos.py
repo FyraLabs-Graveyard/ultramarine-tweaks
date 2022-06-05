@@ -8,7 +8,9 @@ from gi.repository import Gtk, GObject
 # TODO: Add a polkit rule for this module, else it will not work thanks to permissions
 
 import configparser
-class YumRepo():
+
+
+class YumRepo:
     def __init__(self):
         self.name: str = ""
         self.id: str = ""
@@ -16,7 +18,7 @@ class YumRepo():
         self.gpgcheck: bool = True
         self.gpgkey: str = ""
         self.enabled_metadata: bool = True
-        self.type: str = "rpm-md" # Make this an enum?
+        self.type: str = "rpm-md"  # Make this an enum?
         self.baseurl: str = ""
         self.metalink: str = ""
         self.skip_if_unavailable: bool = False
@@ -30,7 +32,6 @@ class YumRepo():
             "defaultno",
         ]
         self.files: list[str] = []
-
 
     def set(self, attr: str, value: Any):
         setattr(self, attr, value)
@@ -86,9 +87,9 @@ class YumRepo():
         self.set_config(id, option, "1" if value else "0")
 
 
-
 class ReposModule(Module):
     """Test Module"""
+
     def __init__(self):
         super().__init__()
         self.name = "Repositories"
@@ -147,14 +148,13 @@ class ReposModule(Module):
         # make resizable
         enabled_column.set_resizable(True)
 
-
         # Add the rows
         self.repolist = YumRepo.from_repos()
         for repo in self.repolist:
             self.treeview_model.append([repo.id, repo.name, repo.baseurl, repo.enabled])
 
         # fix size for treeview row
-        #self.treeview.set_fixed_height_mode(True)
+        # self.treeview.set_fixed_height_mode(True)
         self.treeview.set_size_request(-1, 200)
 
         self.page.add_row(self.treeview)
@@ -172,7 +172,6 @@ class ReposModule(Module):
             text=self.selected_row.name if self.selected_row else "",
         )
 
-
         self.page.add_row(self.repo_name_row)
 
         self.baseurl_row = TextOption(
@@ -184,7 +183,6 @@ class ReposModule(Module):
 
         self.page.add_row(self.baseurl_row)
 
-
         self.mirrorurl_row = TextOption(
             title="Mirror URL",
             description="Mirror URL of the repository",
@@ -193,7 +191,6 @@ class ReposModule(Module):
         )
 
         self.page.add_row(self.mirrorurl_row)
-
 
         self.enabled_row = BooleanOption(
             title="Enabled",
@@ -204,19 +201,18 @@ class ReposModule(Module):
 
         self.page.add_row(self.enabled_row)
 
-
     def on_row_activated(self, treeview, path: str, column):
 
-        #print(f"row activated: {path}")
-        #print(f"column activated: {column}")
-        #print(f"from treeview: {treeview}")
-        #print("row activated")
+        # print(f"row activated: {path}")
+        # print(f"column activated: {column}")
+        # print(f"from treeview: {treeview}")
+        # print("row activated")
         # get the repo id of the activated row
         repo_id = self.treeview_model[path][0]
         assert (repo := YumRepo.find_from_id(repo_id))
         self.selected_row = repo
-        #print(f"repo id: {repo_id}")
-        #print(f"repo: {YumRepo.find_from_id(repo_id).__dict__}")
+        # print(f"repo id: {repo_id}")
+        # print(f"repo: {YumRepo.find_from_id(repo_id).__dict__}")
         self.update()
 
     def update(self):
@@ -226,7 +222,7 @@ class ReposModule(Module):
         self.mirrorurl_row.set_text(self.selected_row.metalink)
         self.enabled_row.set_value(self.selected_row.enabled)
 
-    def set_enabled(self, widget: Gtk.Switch, _: GObject.GType|None):
+    def set_enabled(self, widget: Gtk.Switch, _: GObject.GType | None):
         # get active value
         print(widget.get_active())
         active = widget.get_active()
@@ -238,7 +234,9 @@ class ReposModule(Module):
         # get active value
         print(widget.get_text())
         # run operation as root
-        self.selected_row.set_config(self.selected_row.id, "metalink", widget.get_text())
+        self.selected_row.set_config(
+            self.selected_row.id, "metalink", widget.get_text()
+        )
         self.update()
 
     def set_baseurl(self, widget: Gtk.Entry):

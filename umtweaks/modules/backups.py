@@ -5,11 +5,19 @@ from umtweaks.widgets import ComboOption
 from . import Module
 import dbus
 from dbus.mainloop.glib import DBusGMainLoop
-#gi.require_version("GtkSource", "3.0")
+
+# gi.require_version("GtkSource", "3.0")
 from gi.repository import Gtk
 
+
 class SnapperSnapshot(object):
-    def __init__(self, id: 'SupportsInt', date: 'SupportsInt', user: 'SupportsInt', description: 'AnyStr'):
+    def __init__(
+        self,
+        id: "SupportsInt",
+        date: "SupportsInt",
+        user: "SupportsInt",
+        description: "AnyStr",
+    ):
         # DBus types to python types
         self.id = int(id)
         # get date from epoch
@@ -20,6 +28,7 @@ class SnapperSnapshot(object):
         # get username from UID
         self.user = pwd.getpwuid(int(user)).pw_name
         self.description = str(description)
+
 
 class SnapperConfig(object):
     def __init__(self, name: str, root: str):
@@ -46,24 +55,30 @@ class SnapperConfig(object):
         snapshots: list[SnapperSnapshot] = []
         snapshots_dbus = snapper.ListSnapshots(self.name)
         for snapshot in snapshots_dbus:
-            snapshots.append(SnapperSnapshot(id=snapshot[0], date=snapshot[3], user=snapshot[4], description=snapshot[5]))
+            snapshots.append(
+                SnapperSnapshot(
+                    id=snapshot[0],
+                    date=snapshot[3],
+                    user=snapshot[4],
+                    description=snapshot[5],
+                )
+            )
         return snapshots
 
 
 try:
     # WTF I hate DBus
     bus = dbus.SystemBus(mainloop=DBusGMainLoop())
-    snapper = dbus.Interface(bus.get_object('org.opensuse.Snapper',
-                                        '/org/opensuse/Snapper'),
-                         dbus_interface='org.opensuse.Snapper')
+    snapper = dbus.Interface(
+        bus.get_object("org.opensuse.Snapper", "/org/opensuse/Snapper"),
+        dbus_interface="org.opensuse.Snapper",
+    )
     configs = SnapperConfig.list_configs()
     config_names = [str(config.name) for config in configs]
     selected_config: SnapperConfig = SnapperConfig.get_config(config_names[0])
 except:
     snapper = None
     print("backups: Unable to connect to snapper")
-
-
 
 
 """ config = SnapperConfig.get_config("root")
@@ -74,8 +89,10 @@ for snapshot in snapshots:
     print(snapshot.__dict__)
  """
 
+
 class SnapperBackupsModule(Module):
     """Test Module"""
+
     def __init__(self):
         super().__init__()
         self.name = "Snapshots"
@@ -83,14 +100,16 @@ class SnapperBackupsModule(Module):
         self.icon = "drive-multidisk-symbolic"
 
         if snapper:
-        #if snapper_enabled:
+            # if snapper_enabled:
             self.configs = SnapperConfig.list_configs()
             config_names = [str(config.name) for config in self.configs]
-            #print(f"Configs: {config_names}")
+            # print(f"Configs: {config_names}")
 
-            self.selected_config: SnapperConfig = SnapperConfig.get_config(config_names[0])
+            self.selected_config: SnapperConfig = SnapperConfig.get_config(
+                config_names[0]
+            )
 
-            #print(self.selected_config.__dict__)
+            # print(self.selected_config.__dict__)
 
             self.config_option = ComboOption(
                 "Config",
@@ -136,24 +155,28 @@ class SnapperBackupsModule(Module):
             description_column.set_fixed_width(400)
             description_column.set_resizable(True)
             # align text to the right
-            #description_column.set_alignment(1.0)
+            # description_column.set_alignment(1.0)
             self.treeview.append_column(description_column)
-
 
             # Load the config
             # get the selected config from ComboOption
             self.snapshots = self.selected_config.list_snapshots()
             for snapshot in self.snapshots:
-                self.treeview_model.append([snapshot.id, snapshot.date, snapshot.user, snapshot.description])
-
+                self.treeview_model.append(
+                    [snapshot.id, snapshot.date, snapshot.user, snapshot.description]
+                )
 
             self.page.add_row(self.treeview)
 
         else:
             no_snapper_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
-            icon = Gtk.Image.new_from_icon_name("dialog-error-symbolic", size=Gtk.IconSize.DIALOG)
+            icon = Gtk.Image.new_from_icon_name(
+                "dialog-error-symbolic", size=Gtk.IconSize.DIALOG
+            )
             no_snapper_box.add(icon)
-            label = Gtk.Label("Snapper is not yet set up for this system. Would you like to set up Snapper?")
+            label = Gtk.Label(
+                "Snapper is not yet set up for this system. Would you like to set up Snapper?"
+            )
             no_snapper_box.add(label)
             # Custom icon size
             button = Gtk.Button("Set up Snapper")
@@ -161,10 +184,8 @@ class SnapperBackupsModule(Module):
             button.connect("clicked", self.set_up_snapper)
             self.page.add_row(no_snapper_box)
 
-
-
-
     def test_action(self, *_):
         print("Test action")
+
     def set_up_snapper(self, *_: Any):
         print("Set up snapper")

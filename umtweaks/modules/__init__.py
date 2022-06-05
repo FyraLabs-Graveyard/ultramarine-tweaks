@@ -7,15 +7,16 @@ from gi.repository import Gtk
 
 import os
 
-ActionT: TypeAlias = list[dict[str, str|Callable[[Gtk.Widget], None]]]
+ActionT: TypeAlias = list[dict[str, str | Callable[[Gtk.Widget], None]]]
 ReqPermT: TypeAlias = list[Any]  #! not sure
 
 
 class Module:
     """Template for an Ultramarine Tweaks Module"""
+
     _name: str = "Module"
     _description: str = "This is a module"
-    _icon: str = ''
+    _icon: str = ""
     _restart_required: bool = False
     _actions: ActionT = []
     # Polkit perms requied to use this module
@@ -32,7 +33,7 @@ class Module:
             description=self.description,
             icon_name=self.icon,
             window=window,
-            page = self.page,
+            page=self.page,
         )
 
     def load(self):
@@ -104,23 +105,25 @@ def find_modules() -> list[Module]:
     """Find modules in the system"""
     # List all python files in __file__
     files = [f for f in os.listdir(os.path.dirname(__file__)) if f.endswith(".py")]
-    #print(files)
+    # print(files)
 
     # Import the file and find a class that inherits from Module
     modules: list[Module] = []
     for file in files:
         if file == "__init__.py":
             continue
-        #print(file)
-        module = __import__(f"umtweaks.modules.{file[:-3]}", fromlist=["umtweaks.modules"])
+        # print(file)
+        module = __import__(
+            f"umtweaks.modules.{file[:-3]}", fromlist=["umtweaks.modules"]
+        )
         for name, obj in list(module.__dict__.items()):
-            #print(name, obj)]
+            # print(name, obj)]
             # if from __init__.py, skip
             if name == "__file__":
                 continue
 
             if isinstance(obj, type) and issubclass(obj, Module):
-                #print(name)
+                # print(name)
                 # get file where object is from
                 a = obj.__module__
                 if a == "umtweaks.modules":
@@ -138,7 +141,7 @@ def load_modules_to_listbox(listbox: Gtk.ListBox, window: Gtk.Window):
     modules = find_modules()
     for module in modules:
         # print all of the modules properties
-        #print(module.name)
+        # print(module.name)
         listbox.add(module.generate_row(window))
 
 
@@ -146,5 +149,5 @@ def load_modules_to_pages(stack: Gtk.Stack):
     """Load modules to a pages"""
     modules = find_modules()
     for module in modules:
-        #print(f"module: {module.name}")
+        # print(f"module: {module.name}")
         stack.add_named(module.page, module.name)

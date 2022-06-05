@@ -9,15 +9,17 @@ from .widgets import MainContent
 
 import umtweaks.modules as modules
 
+
 class MainWindow(Gtk.ApplicationWindow):
     def __init__(self, app: Gtk.Application):
-        Gtk.ApplicationWindow.__init__(self, application=app, title="Ultramarine Tweaks")
+        Gtk.ApplicationWindow.__init__(
+            self, application=app, title="Ultramarine Tweaks"
+        )
 
         self.set_default_size(1000, 700)
         self.menu_button = Gtk.MenuButton()
         self.set_icon_name("ultramarine")
         self.set_titlebar(self.header_bar())
-
 
         self.hsize_group = Gtk.SizeGroup(mode=Gtk.SizeGroupMode.HORIZONTAL)
 
@@ -48,14 +50,13 @@ class MainWindow(Gtk.ApplicationWindow):
 
         self.add(self.main_box)
 
-
     def header_bar(self) -> Gtk.Container:
         """A header bar as a Leaflet"""
         header: Gtk.Container = Handy.Leaflet()
         header.set_transition_type(Handy.LeafletTransitionType.SLIDE)
         header.connect("notify::visible-child", self.csd_update)
         # Check if the leaflet is folded
-        #if header.
+        # if header.
 
         left_header = Gtk.HeaderBar()
         left_header.props.show_close_button = False
@@ -71,7 +72,6 @@ class MainWindow(Gtk.ApplicationWindow):
         self.header_right.get_style_context().add_class("titlebar")
         self.header_right.get_style_context().add_class("tweak-titlebar-right")
 
-
         appmenu = Gio.Menu()
         appmenu.append("About", "app.about")
 
@@ -81,57 +81,55 @@ class MainWindow(Gtk.ApplicationWindow):
 
         self.header_right.pack_start(self.menu_button)
 
-        #header.bind_property("folded", self.back_button, "visible")
+        # header.bind_property("folded", self.back_button, "visible")
 
-        #self.back_button.hide()
+        # self.back_button.hide()
 
-        #self.seperator = Gtk.Separator(orientation=Gtk.Orientation.VERTICAL)
+        # self.seperator = Gtk.Separator(orientation=Gtk.Orientation.VERTICAL)
 
-        #header.add(left_header)
-        #header.add(self.seperator)
+        # header.add(left_header)
+        # header.add(self.seperator)
         header.add(self.header_right)
 
         return header
 
     def _on_back_button_clicked(self, widget):
-        #print("Back button clicked")
+        # print("Back button clicked")
         # We call this twice because of the funny separator
         self.main_seperator.set_visible(False)
         self.main_box.navigate(Handy.NavigationDirection.BACK)
         self.main_box.navigate(Handy.NavigationDirection.BACK)
         self.main_seperator.set_visible(True)
 
-
     def csd_update(self, *args, **kwargs):
-        #print(kwargs)
+        # print(kwargs)
         # a = self.get_titlebar()
-
-
 
         # Check if main box is folded
         if self.main_box.props.folded:
             if not self.back_button:
-                self.back_button = Gtk.Button.new_from_icon_name("go-previous-symbolic", 1)
+                self.back_button = Gtk.Button.new_from_icon_name(
+                    "go-previous-symbolic", 1
+                )
                 self.back_button.connect("clicked", self._on_back_button_clicked)
                 self.header_right.pack_start(self.back_button)
                 self.back_button.hide()
-            #self.seperator.props.visible = False
+            # self.seperator.props.visible = False
             self.back_button.props.visible = True
         else:
-            #self.seperator.props.visible = True
+            # self.seperator.props.visible = True
             if self.back_button:
                 self.back_button.props.visible = False
-        #print(a)
-
+        # print(a)
 
     def sidebar(self):
         # Copied over from GNOME Tweaks
         left_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
         left_box.set_size_request(200, -1)
         self.entry = Gtk.SearchEntry(placeholder_text=("Search Tweaks…"))
-        if (Gtk.check_version(3, 22, 20) is None):
+        if Gtk.check_version(3, 22, 20) is None:
             self.entry.set_input_hints(Gtk.InputHints.NO_EMOJI)
-        #self.entry.connect("search-changed", self._on_search)
+        # self.entry.connect("search-changed", self._on_search)
 
         self.searchbar = Gtk.SearchBar()
         self.searchbar.add(self.entry)
@@ -143,11 +141,10 @@ class MainWindow(Gtk.ApplicationWindow):
 
         self.listbox = Gtk.ListBox(can_default=True)
         self.listbox.get_style_context().add_class("tweak-categories")
-        #self.listbox.connect("row-selected", self._on_select_row)
-        #self.listbox.set_header_func(self._list_header_func, None)
+        # self.listbox.connect("row-selected", self._on_select_row)
+        # self.listbox.set_header_func(self._list_header_func, None)
         scroll = Gtk.ScrolledWindow()
-        scroll.set_policy(Gtk.PolicyType.NEVER,
-                          Gtk.PolicyType.AUTOMATIC)
+        scroll.set_policy(Gtk.PolicyType.NEVER, Gtk.PolicyType.AUTOMATIC)
 
         # Add content to listbox
         """ page1 = ListBoxRow("Tweaks", "system-run-symbolic", self, "Testing")

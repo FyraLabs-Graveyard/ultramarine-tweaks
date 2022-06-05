@@ -2,8 +2,10 @@
 
 from . import Module
 
+
 class TestModule(Module):
     """Test Module"""
+
     def __init__(self):
         super().__init__()
         # override the name
