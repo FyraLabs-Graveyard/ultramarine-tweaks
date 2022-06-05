@@ -6,6 +6,8 @@ from umtweaks.widgets import BooleanOption, TextOption, TweaksBox
 from gi.repository import Gtk, GObject
 
 
+#FIXME if user click on module during list(), it might not fully load
+#FIXME the sidebar has to be clicked again to see all the services
 class ServiceModule(Module):
     """Manage systemd modules"""
     rows: list[BooleanOption] = []
@@ -13,7 +15,7 @@ class ServiceModule(Module):
     def __init__(self):
         super().__init__()
         self.name = "Service Management"
-        self.description = "Disable services from weak dependencies"
+        self.description = "Manage systemd modules"
         self.icon = "system-run-symbolic"
 
         search = TextOption("Search", set_action=self.search)
@@ -41,10 +43,12 @@ class ServiceModule(Module):
         service = boolopt.title.split()[0]
         if (state := self.is_enabled(service)) not in ["enabled", "disabled"]:
             return widget.set_sensitive(False)
-        if state == "enabled"  and     widget.get_active(): return
-        if state == "disabled" and not widget.get_active(): return
-        if self.is_active(service)  == widget.get_active(): return
-        if not self.enable(service) if widget.get_active() else self.disable(service):
+        if   state == "enabled"  and     boolopt.get_active(): return
+        elif state == "disabled" and not boolopt.get_active(): return
+
+        if state not in ['enabled', 'disabled'] and self.is_active(service) == boolopt.get_active(): return
+
+        if not  (self.enable(service) if boolopt.get_active() else self.disable(service)):
             widget.set_active(self.is_enabled(service) == "enabled")
 
     def is_enabled(self, service: str):
@@ -81,7 +85,6 @@ class ServiceModule(Module):
     def list(self):
         print("services: Gathering info from systemd")
         print("services: This may take a while.")
-        i = 0
         for i, (ser, time, desc, enabled) in enumerate(self.list_blame()):
             # this looks weird becauase same line + clear
             print(end=f"\x1b[2Kservices: {i+1} {ser}\r")
