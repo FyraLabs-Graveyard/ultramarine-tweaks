@@ -1,5 +1,6 @@
 from datetime import datetime
 import pwd
+from typing import Any, AnyStr, SupportsInt, Sequence
 from umtweaks.widgets import ComboOption
 from . import Module
 import dbus
@@ -8,7 +9,7 @@ from dbus.mainloop.glib import DBusGMainLoop
 from gi.repository import Gtk
 
 class SnapperSnapshot(object):
-    def __init__(self, id, date, user, description):
+    def __init__(self, id: 'SupportsInt', date: 'SupportsInt', user: 'SupportsInt', description: 'AnyStr'):
         # DBus types to python types
         self.id = int(id)
         # get date from epoch
@@ -21,26 +22,28 @@ class SnapperSnapshot(object):
         self.description = str(description)
 
 class SnapperConfig(object):
-    def __init__(self, name, root):
+    def __init__(self, name: str, root: str):
         self.name = name
         self.root = root
 
+    @staticmethod
     def list_configs():
-        configs = []
-        configs_dbus = snapper.ListConfigs()
+        configs: list[SnapperConfig] = []
+        configs_dbus: Sequence[tuple[str, str]] = snapper.ListConfigs()
         for config in configs_dbus:
             configs.append(SnapperConfig(config[0], config[1]))
         return configs
 
-    def get_config(name):
-        config_dbus = snapper.GetConfig(name)
+    @staticmethod
+    def get_config(name: str):
+        config_dbus: tuple[str, str] = snapper.GetConfig(name)
         return SnapperConfig(config_dbus[0], config_dbus[1])
 
-    def into_dbus(self):
+    def into_dbus(self) -> tuple[str, str]:
         return snapper.GetConfig(self.name)
 
     def list_snapshots(self):
-        snapshots = []
+        snapshots: list[SnapperSnapshot] = []
         snapshots_dbus = snapper.ListSnapshots(self.name)
         for snapshot in snapshots_dbus:
             snapshots.append(SnapperSnapshot(id=snapshot[0], date=snapshot[3], user=snapshot[4], description=snapshot[5]))
@@ -163,5 +166,5 @@ class SnapperBackupsModule(Module):
 
     def test_action(self, *_):
         print("Test action")
-    def set_up_snapper(self, *_):
+    def set_up_snapper(self, *_: Any):
         print("Set up snapper")

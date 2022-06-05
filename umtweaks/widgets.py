@@ -1,4 +1,4 @@
-from typing import Any, Callable, TypeVar
+from typing import Any, Callable, Optional, TypeVar
 import gi
 
 gi.require_version("Gtk", "3.0")
@@ -8,7 +8,8 @@ from gi.repository import Gtk, Handy, GObject
 
 # from .window import MainWindow
 WidgetT = TypeVar("WidgetT", bound=Gtk.Widget)
-SetActionT = Callable[[WidgetT, GObject.GType], Any]|None
+SetActionT = Callable[[WidgetT, Optional[GObject.GType]], Any]|None
+SetActionT2 = Callable[[WidgetT], Any]|None
 
 
 def main_content():
@@ -169,7 +170,7 @@ class BooleanOption(TweaksListBoxRow):
         self.add(box)
 
     def get_active(self) -> bool:
-        return self.check_button.get_active()
+        return self.switch.get_active()
 
     def set_value(self, value: bool) -> None:
         self.switch.set_active(value)
@@ -182,7 +183,7 @@ class ComboOption(TweaksListBoxRow):
         description: str = '',
         options: list[str] = [],
         selected_index: int = 0,
-        set_action: SetActionT[Gtk.ComboBox] = None,
+        set_action: SetActionT2[Gtk.ComboBox] = None,
     ):
         super().__init__()
 
@@ -193,7 +194,7 @@ class ComboOption(TweaksListBoxRow):
             # Add description as tooltip
             title_label.set_tooltip_text(description)
 
-        combo = Gtk.ComboBox()
+        self.combo_box = combo = Gtk.ComboBox()
         model = Gtk.ListStore(str)
         for option in options:
             model.append([option])
@@ -218,7 +219,7 @@ class TextOption(TweaksListBoxRow):
         title: str,
         description: str = '',
         text: str = '',
-        set_action: SetActionT[Gtk.Entry] = None,
+        set_action: SetActionT2[Gtk.Entry] = None,
     ):
         super().__init__()
         self.text = text

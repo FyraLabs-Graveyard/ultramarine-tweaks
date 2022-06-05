@@ -86,7 +86,7 @@ class AppearanceModule(Module):
     def get_gtk_theme_index(self) -> int:
         """Get the current GTK theme"""
         settings = Gio.Settings.new("org.gnome.desktop.interface")
-        theme = settings.get_string("gtk-theme")
+        theme: str = settings.get_string("gtk-theme")
         #print(theme)
 
         # Get the index of the selected item
@@ -119,7 +119,7 @@ class AppearanceModule(Module):
     def get_color_scheme(self) -> int:
         """Get the current color scheme"""
         settings = Gio.Settings.new("org.gnome.desktop.interface")
-        scheme = settings.get_string("color-scheme")
+        scheme: str = settings.get_string("color-scheme")
         # Scheme is an enum of "default", "prefer-dark", "prefer-light"
         match scheme:
             case "default":
@@ -144,15 +144,15 @@ class AppearanceModule(Module):
         settings = Gio.Settings.new("org.gnome.desktop.interface")
         settings.set_string("color-scheme", scheme)
 
-    def get_icon_themes(self) -> list:
+    def get_icon_themes(self):
         """Get all icon themes"""
         # list folders in /usr/share/icons
-        system_themes = []
+        system_themes: list[str] = []
         for folder in os.listdir("/usr/share/icons"):
             if os.path.isdir("/usr/share/icons/" + folder):
                 system_themes.append(folder)
 
-        user_themes = []
+        user_themes: list[str] = []
         # if ~/.icons exists
         if os.path.isdir(os.path.expanduser("~/.icons")):
             for folder in os.listdir(os.path.expanduser("~/.icons")):
@@ -168,7 +168,7 @@ class AppearanceModule(Module):
     def get_icon_theme_index(self) -> int:
         """Get the current icon theme"""
         settings = Gio.Settings.new("org.gnome.desktop.interface")
-        theme = settings.get_string("icon-theme")
+        theme: str = settings.get_string("icon-theme")
         #print(theme)
 
         # Get the index of the selected item

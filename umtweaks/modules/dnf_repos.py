@@ -1,8 +1,9 @@
 import os
+from typing import Any
 from umtweaks.widgets import BooleanOption, TextOption
 from . import Module
 
-from gi.repository import Gtk
+from gi.repository import Gtk, GObject
 
 # TODO: Add a polkit rule for this module, else it will not work thanks to permissions
 
@@ -28,16 +29,17 @@ class YumRepo():
             "defaultyes",
             "defaultno",
         ]
-        self.files = []
+        self.files: list[str] = []
 
 
-    def set(self, attr, value):
+    def set(self, attr: str, value: Any):
         setattr(self, attr, value)
 
-    def get(self, attr):
+    def get(self, attr: str):
         return getattr(self, attr)
 
-    def from_config(file):
+    @staticmethod
+    def from_config(file: str):
         config = configparser.ConfigParser()
         config.read(file)
         # for section in config.sections():
@@ -54,35 +56,34 @@ class YumRepo():
                     repo.set(option, config.get(section, option))
             return repo
 
+    @staticmethod
     def from_repos():
-        repos = []
+        repos: list[YumRepo] = []
         repos_folder = "/etc/yum.repos.d/"
         for file in os.listdir(repos_folder):
             if file.endswith(".repo"):
-                repo = YumRepo.from_config(repos_folder + file)
+                assert (repo := YumRepo.from_config(repos_folder + file))
                 repo.files.append(repos_folder + file)
                 repos.append(repo)
         return repos
 
-    def find_from_id(id):
+    @staticmethod
+    def find_from_id(id: str):
         repos = YumRepo.from_repos()
         for repo in repos:
             if repo.id == id:
                 return repo
         return None
 
-    def set_config(self, id, option, value):
+    def set_config(self, id: str, option: str, value: str):
         config = configparser.ConfigParser()
         config.read(self.files[0])
         config.set(id, option, value)
         with open(self.files[0], "w") as configfile:
             config.write(configfile)
-    def set_boolean(self, id, option, value):
-        if value == True:
-            value = "1"
-        else:
-            value = "0"
-        self.set_config(id, option, value)
+
+    def set_boolean(self, id: str, option: str, value: bool):
+        self.set_config(id, option, "1" if value else "0")
 
 
 
@@ -204,7 +205,7 @@ class ReposModule(Module):
         self.page.add_row(self.enabled_row)
 
 
-    def on_row_activated(self, treeview, path, column):
+    def on_row_activated(self, treeview, path: str, column):
 
         #print(f"row activated: {path}")
         #print(f"column activated: {column}")
@@ -212,7 +213,7 @@ class ReposModule(Module):
         #print("row activated")
         # get the repo id of the activated row
         repo_id = self.treeview_model[path][0]
-        repo = YumRepo.find_from_id(repo_id)
+        assert (repo := YumRepo.find_from_id(repo_id))
         self.selected_row = repo
         #print(f"repo id: {repo_id}")
         #print(f"repo: {YumRepo.find_from_id(repo_id).__dict__}")
@@ -225,7 +226,7 @@ class ReposModule(Module):
         self.mirrorurl_row.set_text(self.selected_row.metalink)
         self.enabled_row.set_value(self.selected_row.enabled)
 
-    def set_enabled(self, widget, value):
+    def set_enabled(self, widget: Gtk.Switch, _: GObject.GType|None):
         # get active value
         print(widget.get_active())
         active = widget.get_active()
@@ -233,14 +234,14 @@ class ReposModule(Module):
         self.selected_row.set_boolean(self.selected_row.id, "enabled", active)
         self.update()
 
-    def set_mirrorurl(self, widget):
+    def set_mirrorurl(self, widget: Gtk.Entry):
         # get active value
         print(widget.get_text())
         # run operation as root
         self.selected_row.set_config(self.selected_row.id, "metalink", widget.get_text())
         self.update()
 
-    def set_baseurl(self, widget):
+    def set_baseurl(self, widget: Gtk.Entry):
         # get active value
         print(widget.get_text())
         # run operation as root
