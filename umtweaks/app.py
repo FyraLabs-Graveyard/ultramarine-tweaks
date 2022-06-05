@@ -5,10 +5,9 @@ from .window import MainWindow
 
 gi.require_version("Gtk", "3.0")
 
-from gi.repository import Gtk, Gio, GLib, GObject
+from gi.repository import Gtk, Gio
 
 
-GObject.threads_init()
 class Application(Gtk.Application):
     def __init__(self):
         Gtk.Application.__init__(
