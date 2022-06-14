@@ -30,7 +30,7 @@ class Application(Gtk.Application):
 
         about.set_program_name("Ultramarine Tweaks")
         about.set_version("0.1.0")
-        about.set_logo_icon_name("ultramarine")
+        about.set_logo_icon_name("org.ultramarinelinux.tweaks")
         about.set_copyright("Copyright © 2022 Ultramarine Linux Team")
         about.set_license_type(Gtk.License.MIT_X11)
         about.set_website("https://ultramarine-linux.org")

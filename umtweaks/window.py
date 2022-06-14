@@ -18,7 +18,7 @@ class MainWindow(Gtk.ApplicationWindow):
 
         self.set_default_size(1000, 700)
         self.menu_button = Gtk.MenuButton()
-        self.set_icon_name("ultramarine")
+        self.set_icon_name("org.ultramarinelinux.tweaks")
         self.set_titlebar(self.header_bar())
 
         self.hsize_group = Gtk.SizeGroup(mode=Gtk.SizeGroupMode.HORIZONTAL)

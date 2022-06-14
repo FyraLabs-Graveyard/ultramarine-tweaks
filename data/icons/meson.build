@@ -1,4 +1,4 @@
-application_id = 'org.example.App'
+application_id = 'org.ultramarinelinux.tweaks'
 
 scalable_dir = join_paths('hicolor', 'scalable', 'apps')
 install_data(
