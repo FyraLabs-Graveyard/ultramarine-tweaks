@@ -1,3 +1,4 @@
+from contextlib import suppress
 import os
 from typing import Any
 from umtweaks.widgets import BooleanOption, ComboOption
@@ -64,6 +65,19 @@ class AppearanceModule(Module):
         )
 
         self.page.add_row(color_scheme)
+
+        self.screenshare_modes = [
+            "mirror-primary",
+            "extend"
+        ]
+
+        self.page.add_row(ComboOption(
+            title="RDP Screenshare Mode",
+            description="Whether the RDP backend mirrors the primary screen, or whether a virtual monitor is created",
+            options=self.screenshare_modes,
+            selected_index=self.get_screenshare_mode(),
+            set_action=self.set_screenshare_mode
+        ))
 
     def test_action(self, widget: Gtk.Widget, *args: Any):
         # if widget is a ComboBox
@@ -172,7 +186,10 @@ class AppearanceModule(Module):
         #print(theme)
 
         # Get the index of the selected item
-        index = self.icon_themes.index(theme)
+        try:
+            index = self.icon_themes.index(theme)
+        except ValueError:
+            index = 0
         #print(index)
         return index
 
@@ -188,3 +205,15 @@ class AppearanceModule(Module):
         # Set the theme in Gsettings
         settings = Gio.Settings.new("org.gnome.desktop.interface")
         settings.set_string("icon-theme", theme)
+
+    def get_screenshare_mode(self) -> int:
+        """Get the current screenshare mode"""
+        settings = Gio.Settings.new("org.gnome.desktop.remote-desktop.rdp")
+        mode: str = settings.get_string("screen-share-mode")
+        return self.screenshare_modes.index(mode)
+
+    def set_screenshare_mode(self, widget: Gtk.ComboBox):
+        index = widget.get_active()
+        mode = self.screenshare_modes[index]
+        settings = Gio.Settings.new("org.gnome.desktop.remote-desktop.rdp")
+        settings.set_string("screen-share-mode", mode)
