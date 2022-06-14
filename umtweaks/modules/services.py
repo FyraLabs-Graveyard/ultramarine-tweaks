@@ -96,6 +96,7 @@ class ServiceModule(Module):
         print("services: This may take a while.")
         for i, (ser, time, desc, enabled) in enumerate(self.list_blame()):
             # this looks weird becauase same line + clear
+            print("service:", ser, end="\r")
             print(end=f"\x1b[2Kservices: {i+1} {ser}\r")
             opt = BooleanOption(
                 ser + " " + time, desc, enabled == "enabled", self.toggle
@@ -111,14 +112,18 @@ class ServiceModule(Module):
 
     def list_blame(self):
         out = sp.getoutput("systemd-analyze blame --no-pager")
-        for line in out.splitlines():
-            time, ser = line.split()
-            desc = [
-                l.split("=")[1]
-                for l in sp.getoutput(f"systemctl show {ser}").splitlines()
-                if l.startswith("Description=")
-            ][0]
-            yield ser, time, desc, self.is_enabled(ser)
+        try:
+            for line in out.splitlines():
+                time, ser = line.split()
+                desc = [
+                    l.split("=")[1]
+                    for l in sp.getoutput(f"systemctl show {ser}").splitlines()
+                    if l.startswith("Description=")
+                ][0]
+                yield ser, time, desc, self.is_enabled(ser)
+        except Exception as e:
+            print(f"{e}.", "Hiding this service.")
+            pass
 
     def search(self, widget: Gtk.Entry):
         query = widget.get_text()
