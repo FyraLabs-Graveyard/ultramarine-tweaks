@@ -6,10 +6,11 @@ from umtweaks.widgets import BooleanOption, TextOption, TweaksBox
 from gi.repository import Gtk, GObject
 
 
-#FIXME if user click on module during list(), it might not fully load
-#FIXME the sidebar has to be clicked again to see all the services
+# FIXME if user click on module during list(), it might not fully load
+# FIXME the sidebar has to be clicked again to see all the services
 class ServiceModule(Module):
     """Manage systemd modules"""
+
     rows: list[BooleanOption] = []
 
     def __init__(self):
@@ -35,7 +36,7 @@ class ServiceModule(Module):
         sp.run(f"systemctl disable {service}".split())
         return self.is_enabled(service) == "disabled"
 
-    def toggle(self, widget: Gtk.Switch, _: GObject.GType|None):
+    def toggle(self, widget: Gtk.Switch, _: GObject.GType | None):
         tweakbox = widget.get_parent()
         assert tweakbox
         boolopt = tweakbox.get_parent()
@@ -43,12 +44,20 @@ class ServiceModule(Module):
         service = boolopt.title.split()[0]
         if (state := self.is_enabled(service)) not in ["enabled", "disabled"]:
             return widget.set_sensitive(False)
-        if   state == "enabled"  and     boolopt.get_active(): return
-        elif state == "disabled" and not boolopt.get_active(): return
+        if state == "enabled" and boolopt.get_active():
+            return
+        elif state == "disabled" and not boolopt.get_active():
+            return
 
-        if state not in ['enabled', 'disabled'] and self.is_active(service) == boolopt.get_active(): return
+        if (
+            state not in ["enabled", "disabled"]
+            and self.is_active(service) == boolopt.get_active()
+        ):
+            return
 
-        if not  (self.enable(service) if boolopt.get_active() else self.disable(service)):
+        if not (
+            self.enable(service) if boolopt.get_active() else self.disable(service)
+        ):
             widget.set_active(self.is_enabled(service) == "enabled")
 
     def is_enabled(self, service: str):
@@ -87,6 +96,7 @@ class ServiceModule(Module):
         print("services: This may take a while.")
         for i, (ser, time, desc, enabled) in enumerate(self.list_blame()):
             # this looks weird becauase same line + clear
+            print("service:", ser, end="\r")
             print(end=f"\x1b[2Kservices: {i+1} {ser}\r")
             opt = BooleanOption(
                 ser + " " + time, desc, enabled == "enabled", self.toggle
@@ -102,14 +112,18 @@ class ServiceModule(Module):
 
     def list_blame(self):
         out = sp.getoutput("systemd-analyze blame --no-pager")
-        for line in out.splitlines():
-            time, ser = line.split()
-            desc = [
-                l.split("=")[1]
-                for l in sp.getoutput(f"systemctl show {ser}").splitlines()
-                if l.startswith("Description=")
-            ][0]
-            yield ser, time, desc, self.is_enabled(ser)
+        try:
+            for line in out.splitlines():
+                time, ser = line.split()
+                desc = [
+                    l.split("=")[1]
+                    for l in sp.getoutput(f"systemctl show {ser}").splitlines()
+                    if l.startswith("Description=")
+                ][0]
+                yield ser, time, desc, self.is_enabled(ser)
+        except Exception as e:
+            print(f"{e}.", "Hiding this service.")
+            pass
 
     def search(self, widget: Gtk.Entry):
         query = widget.get_text()

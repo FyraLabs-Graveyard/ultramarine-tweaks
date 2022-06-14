@@ -1,7 +1,9 @@
 from . import Module
 
+
 class KernelTweaker(Module):
     """KernelTweaker"""
+
     def __init__(self):
         super().__init__()
         # override the name

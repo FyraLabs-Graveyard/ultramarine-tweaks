@@ -1,4 +1,3 @@
-from contextlib import suppress
 import os
 from typing import Any
 from umtweaks.widgets import BooleanOption, ComboOption
@@ -6,8 +5,10 @@ from . import Module
 
 from gi.repository import Gtk, Gio
 
+
 class AppearanceModule(Module):
     """Test Module"""
+
     def __init__(self):
         super().__init__()
         self.name = "Appearance"
@@ -18,21 +19,25 @@ class AppearanceModule(Module):
                 "name": "Test Action",
                 "description": "This is a test action",
                 "icon": "dialog-information",
-                "callback": self.test_action
+                "callback": self.test_action,
             }
         ]
-        boxrow = BooleanOption("Test", description="Test Description", bool_value=True, set_action=self.test_action)
+        boxrow = BooleanOption(
+            "Test",
+            description="Test Description",
+            bool_value=True,
+            set_action=self.test_action,
+        )
 
         self.page.add_row(boxrow)
         self.themes = self.get_gtk_themes()
-
 
         gtk_theme = ComboOption(
             title="GTK Theme",
             description="Select a GTK theme",
             options=self.themes,
             selected_index=self.get_gtk_theme_index(),
-            set_action=self.set_gtk_theme
+            set_action=self.set_gtk_theme,
         )
 
         self.page.add_row(gtk_theme)
@@ -44,11 +49,10 @@ class AppearanceModule(Module):
             description="Select a icon theme",
             options=self.icon_themes,
             selected_index=self.get_icon_theme_index(),
-            set_action=self.set_icon_theme
+            set_action=self.set_icon_theme,
         )
 
         self.page.add_row(icon_theme)
-
 
         color_scheme_options = [
             "Default",
@@ -61,7 +65,7 @@ class AppearanceModule(Module):
             description="Color schemes for GNOME apps",
             options=color_scheme_options,
             selected_index=self.get_color_scheme(),
-            set_action=self.set_color_scheme
+            set_action=self.set_color_scheme,
         )
 
         self.page.add_row(color_scheme)
@@ -85,27 +89,26 @@ class AppearanceModule(Module):
 
     def set_gtk_theme(self, widget: Gtk.ComboBox):
         # Get the index of the selected item
-        #print(widget.get_active())
+        # print(widget.get_active())
         index = widget.get_active()
 
         # Get the theme name
         theme = self.themes[index]
-        #print(theme)
+        # print(theme)
 
         # Set the theme in Gsettings
         settings = Gio.Settings.new("org.gnome.desktop.interface")
         settings.set_string("gtk-theme", theme)
 
-
     def get_gtk_theme_index(self) -> int:
         """Get the current GTK theme"""
         settings = Gio.Settings.new("org.gnome.desktop.interface")
         theme: str = settings.get_string("gtk-theme")
-        #print(theme)
+        # print(theme)
 
         # Get the index of the selected item
         index = self.themes.index(theme)
-        #print(index)
+        # print(index)
         return index
 
     def get_gtk_themes(self) -> list[str]:
@@ -127,7 +130,7 @@ class AppearanceModule(Module):
         # merge both lists, remove duplicates
         themes = list(set(system_themes + user_themes))
 
-        #print(themes)
+        # print(themes)
         return themes
 
     def get_color_scheme(self) -> int:
@@ -147,12 +150,12 @@ class AppearanceModule(Module):
 
     def set_color_scheme(self, widget: Gtk.ComboBox):
         # Get the index of the selected item
-        #print(widget.get_active())
+        # print(widget.get_active())
         index = widget.get_active()
 
         # Get the scheme name
         scheme = ["default", "prefer-dark", "prefer-light"][index]
-        #print(scheme)
+        # print(scheme)
 
         # Set the scheme in Gsettings
         settings = Gio.Settings.new("org.gnome.desktop.interface")
@@ -176,14 +179,14 @@ class AppearanceModule(Module):
         # merge both lists, remove duplicates
         themes = list(set(system_themes + user_themes))
 
-        #print(themes)
+        # print(themes)
         return themes
 
     def get_icon_theme_index(self) -> int:
         """Get the current icon theme"""
         settings = Gio.Settings.new("org.gnome.desktop.interface")
         theme: str = settings.get_string("icon-theme")
-        #print(theme)
+        # print(theme)
 
         # Get the index of the selected item
         try:
@@ -195,12 +198,12 @@ class AppearanceModule(Module):
 
     def set_icon_theme(self, widget: Gtk.ComboBox):
         # Get the index of the selected item
-        #print(widget.get_active())
+        # print(widget.get_active())
         index = widget.get_active()
 
         # Get the theme name
         theme = self.icon_themes[index]
-        #print(theme)
+        # print(theme)
 
         # Set the theme in Gsettings
         settings = Gio.Settings.new("org.gnome.desktop.interface")

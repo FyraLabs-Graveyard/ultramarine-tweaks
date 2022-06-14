@@ -10,10 +10,7 @@ from gi.repository import Gtk, Gio
 
 class Application(Gtk.Application):
     def __init__(self):
-        Gtk.Application.__init__(
-            self,
-            application_id="org.ultramarinelinux.tweaks"
-        )
+        Gtk.Application.__init__(self, application_id="org.ultramarinelinux.tweaks")
         self.window = None
 
     def do_activate(self):
@@ -33,16 +30,20 @@ class Application(Gtk.Application):
 
         about.set_program_name("Ultramarine Tweaks")
         about.set_version("0.1.0")
-        about.set_logo_icon_name("ultramarine")
+        about.set_logo_icon_name("org.ultramarinelinux.tweaks")
         about.set_copyright("Copyright © 2022 Ultramarine Linux Team")
         about.set_license_type(Gtk.License.MIT_X11)
         about.set_website("https://ultramarine-linux.org")
-        about.set_authors([
-            "Cappy Ishihara <cappy@cappuchino.xyz>",
-            "windowsboy111 <wboy111@outlook.com>",
-        ])
+        about.set_authors(
+            [
+                "Cappy Ishihara <cappy@cappuchino.xyz>",
+                "windowsboy111 <wboy111@outlook.com>",
+                "matteodev <info@matteodev.xyz>",
+            ]
+        )
         about.connect("response", lambda d, r: about.destroy())
         about.show()
+
 
 if __name__ == "__main__":
     app = Application()

@@ -3,6 +3,6 @@ Type=Application
 NoDisplay=false
 Terminal=false
 Exec=ultramarine-tweaks
-Icon=ultramarine
+Icon=org.ultramarinelinux.tweaks
 Name=Ultramarine Tweaks
 Categories=GTK;Settings;
