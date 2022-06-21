@@ -252,3 +252,36 @@ class TextOption(TweaksListBoxRow):
     def set_text(self, text: str) -> None:
         self.text = text
         self.entry.set_text(text)
+
+class IntegerRangeOption(TweaksListBoxRow):
+    def __init__(
+        self,
+        title: str,
+        description: str = "",
+        min: int = 0,
+        max: int = 100,
+        step: int = 1,
+        set_action: SetActionT2[Gtk.SpinButton] = None,
+    ):
+        super().__init__()
+
+        self.box = TweaksBox()
+        title_label = Gtk.Label(title)
+        self.box.add(title_label)
+        if description:
+            # Add description as tooltip
+            title_label.set_tooltip_text(description)
+
+        self.spin: Gtk.SpinButton = Gtk.SpinButton.new_with_range(min, max, step)
+        if set_action:
+            self.spin.connect("changed", set_action)
+        self.box.pack_end(self.spin, False, False, 0)
+
+        self.add(self.box)
+
+    # on self.text change
+    def get_int(self) -> int:
+        return self.spin.get_value_as_int()
+
+    def set_int(self, value: int) -> None:
+        self.spin.set_value(value)

@@ -1,7 +1,7 @@
 import subprocess
 import os
 from typing import Any
-from umtweaks.widgets import BooleanOption, TextOption
+from umtweaks.widgets import BooleanOption, IntegerRangeOption, TextOption
 from . import Module
 
 from gi.repository import Gtk, GObject
@@ -202,6 +202,16 @@ class ReposModule(Module):
 
         self.page.add_row(self.enabled_row)
 
+        self.maxparallel = IntegerRangeOption(
+            "Max Parallel Downloads (global)",
+            "Maximum number of parallel downloads",
+            1, 20, 1,
+            self.set_max_parallel,
+        )
+
+        self.page.add_row(self.maxparallel)
+        self.maxparallel.set_int(self.max_parallel())
+
         self.fastestmirror = BooleanOption(
             title="DNF fastestmirror (global)",
             description="Enable or disable fastestmirror",
@@ -211,25 +221,53 @@ class ReposModule(Module):
 
         self.page.add_row(self.fastestmirror)
 
+    def set_max_parallel(self, widget: Gtk.SpinButton, _: GObject.GType | None = None):
+        maxparallel = widget.get_value_as_int()
+        self._global_cfg("max_parallel_downloads", str(maxparallel))
+    
+    def max_parallel(self):
+        ret = self._global_cfg("max_parallel_downloads")
+        if ret == '':
+            self.maxparallel.set_sensitive(False)
+            self.maxparallel.set_int(3)
+            return 3
+        try:
+            return int(ret)
+        except ValueError:
+            self.maxparallel.set_int(3)
+            self.set_max_parallel(self.maxparallel.spin, None)
+            return 3
+
     def set_fastest_mirror(self, widget: Gtk.Switch, _: GObject.GType | None):
         self._fastest_mirror(self.fastestmirror.get_active())
 
-    def _fastest_mirror(self, enabled: bool|None = None):
-        parser = configparser.ConfigParser()        
+    def _global_cfg(self, option: str, value: str|None = None):
+        parser = configparser.ConfigParser()
         parser.read(os.path.expanduser("/etc/dnf/dnf.conf"))
-        if enabled is not None:
-            parser.set("main", "fastestmirror", str(enabled))
-            f = open(os.path.expanduser("/etc/dnf/dnf.conf"), 'w')
-            f.write('# see `man dnf.conf` for defaults and possible options\n\n')
+        if value is not None:
+            parser.set("main", option, value)
+            f = open(os.path.expanduser("/etc/dnf/dnf.conf"), "w")
+            f.write('# see `man dnf.conf` for defaults and possible options\n'
+            '# If you use Ultramarine Tweaks your comments will be overwritten\n\n')
             parser.write(f, False)
-            return enabled
-        res = parser.get('main', 'fastestmirror', fallback="False")
+            return value
+        return parser.get('main', option, fallback="")
+
+
+    def _fastest_mirror(self, enabled: bool|None = None):
+        if enabled is not None:
+            self.maxparallel.set_sensitive(enabled)
+            return bool(self._global_cfg('fastestmirror', str(enabled)))
+        res = self._global_cfg('fastestmirror') or "False"
         match res:
             case "True":
+                self.maxparallel.set_sensitive(True)
                 return True
             case "False":
+                self.maxparallel.set_sensitive(False)
                 return False
             case _:
+                self.maxparallel.set_sensitive(False)
                 print("dnf_repos: fastestmirror: unknown value: " + res)
                 return False
 
