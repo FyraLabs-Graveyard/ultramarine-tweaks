@@ -1,3 +1,4 @@
+import subprocess
 import os
 from typing import Any
 from umtweaks.widgets import BooleanOption, TextOption
@@ -200,6 +201,37 @@ class ReposModule(Module):
         )
 
         self.page.add_row(self.enabled_row)
+
+        self.fastestmirror = BooleanOption(
+            title="DNF fastestmirror (global)",
+            description="Enable or disable fastestmirror",
+            bool_value=self._fastest_mirror(),
+            set_action=self.set_fastest_mirror,
+        )
+
+        self.page.add_row(self.fastestmirror)
+
+    def set_fastest_mirror(self, widget: Gtk.Switch, _: GObject.GType | None):
+        self._fastest_mirror(self.fastestmirror.get_active())
+
+    def _fastest_mirror(self, enabled: bool|None = None):
+        parser = configparser.ConfigParser()        
+        parser.read(os.path.expanduser("/etc/dnf/dnf.conf"))
+        if enabled is not None:
+            parser.set("main", "fastestmirror", str(enabled))
+            f = open(os.path.expanduser("/etc/dnf/dnf.conf"), 'w')
+            f.write('# see `man dnf.conf` for defaults and possible options\n\n')
+            parser.write(f, False)
+            return enabled
+        res = parser.get('main', 'fastestmirror', fallback="False")
+        match res:
+            case "True":
+                return True
+            case "False":
+                return False
+            case _:
+                print("dnf_repos: fastestmirror: unknown value: " + res)
+                return False
 
     def on_row_activated(self, treeview, path: str, column):
 

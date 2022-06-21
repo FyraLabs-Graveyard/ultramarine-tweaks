@@ -112,18 +112,19 @@ class ServiceModule(Module):
 
     def list_blame(self):
         out = sp.getoutput("systemd-analyze blame --no-pager")
-        try:
-            for line in out.splitlines():
-                time, ser = line.split()
+        for line in out.splitlines():
+            try:
+                splitted = line.split()
+                ser = splitted.pop()
+                time = " ".join(splitted)
                 desc = [
                     l.split("=")[1]
                     for l in sp.getoutput(f"systemctl show {ser}").splitlines()
                     if l.startswith("Description=")
                 ][0]
                 yield ser, time, desc, self.is_enabled(ser)
-        except Exception as e:
-            print(f"{e}.", "Hiding this service.")
-            pass
+            except Exception as e:
+                print(f"for '{line}': {e}.", "Hiding this service.")
 
     def search(self, widget: Gtk.Entry):
         query = widget.get_text()

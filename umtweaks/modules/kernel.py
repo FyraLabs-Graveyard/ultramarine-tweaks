@@ -13,3 +13,6 @@ class KernelTweaker(Module):
 
     def test_action(self):
         print("Test action")
+
+    def list_modules(self):
+        pass
